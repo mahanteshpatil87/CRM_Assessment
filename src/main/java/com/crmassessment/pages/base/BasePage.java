@@ -61,6 +61,17 @@ public abstract class BasePage {
         return elementActions.isDisplayed(locator);
     }
 
+    /**
+     * Captures full-page PASS-evidence with the given element outlined, and
+     * attaches it to the current test's ExtentReports entry. Concrete pages
+     * expose a named method built on this (e.g. captureFullNameEvidence())
+     * rather than tests calling this directly with a raw locator, keeping
+     * locators out of test classes the same way every other action does.
+     */
+    protected void captureEvidence(By locator, String description) {
+        elementActions.captureEvidence(locator, description);
+    }
+
     protected boolean isSelected(By locator) {
         return elementActions.isSelected(locator);
     }

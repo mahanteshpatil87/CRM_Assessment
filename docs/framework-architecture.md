@@ -129,6 +129,19 @@ pass/fail) to the same report, and `utils.ScreenshotUtils` attaches a screenshot
 any failure — both the assertion-level catch block and `TestNGListener.onTestFailure` capture one,
 so a failure is never left without visual evidence.
 
+Passing tests get visual evidence too, not just a text log line. `ElementActions.captureEvidence`
+(exposed per-page as named methods, e.g. `PersonalDetailsPage.captureFullNameEvidence()`,
+`UserListPage.captureUsernameEvidence()`) takes a full-page screenshot with the specific validated
+element outlined via a temporary inline `style` attribute (never a CSS class, so it can't touch the
+application's own stylesheet, and it's always restored in a `finally` block regardless of outcome),
+then attaches it to that test's ExtentReports entry. This is wired into the five "record now
+genuinely exists in the UI" assertions where a screenshot proves something a text log line alone
+can't - e.g. after Add Employee, the created employee's exact name outlined on Personal Details;
+after Add User, the new username's row outlined in the System Users list. It's deliberately not
+applied to every assertion in the suite - a validation-message check or a boolean state check has
+nothing meaningful to point at with an outline, so evidence capture is reserved for the assertions
+where "here's the actual pixel" is genuinely more convincing than "here's the pass/fail text."
+
 ## Data-driven testing
 
 `utils.ExcelUtils.readSheet` reads a classpath `.xlsx` resource into a list of header-keyed row

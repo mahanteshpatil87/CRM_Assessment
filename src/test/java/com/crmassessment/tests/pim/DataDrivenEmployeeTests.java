@@ -34,5 +34,6 @@ public class DataDrivenEmployeeTests extends AuthenticatedBaseTest {
                 personalDetailsPage.getEmployeeFullName(), firstName + " " + employeeTestData.lastName(),
                 "Employee created from Excel row (" + employeeTestData.firstName() + " " + employeeTestData.lastName()
                         + ") should show the exact generated name on Personal Details", AssertionType.HARD);
+        personalDetailsPage.captureFullNameEvidence();
     }
 }

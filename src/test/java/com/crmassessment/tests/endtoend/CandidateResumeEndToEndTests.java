@@ -56,6 +56,7 @@ public class CandidateResumeEndToEndTests extends AuthenticatedBaseTest {
         AssertsManager.getAsserts().assertTrue(
                 detailsPage.hasResumeAttachment(),
                 "The candidate's detail page should show the previously uploaded resume attachment", AssertionType.HARD);
+        detailsPage.captureResumeAttachmentEvidence();
 
         // 4. Download it and verify the downloaded file matches the original
         detailsPage.downloadResume();

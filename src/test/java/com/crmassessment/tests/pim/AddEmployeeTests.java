@@ -35,6 +35,7 @@ public class AddEmployeeTests extends AuthenticatedBaseTest {
         AssertsManager.getAsserts().assertEquals(
                 personalDetailsPage.getEmployeeFullName(), firstName + " " + lastName,
                 "Personal Details should show the exact name just entered", AssertionType.HARD);
+        personalDetailsPage.captureFullNameEvidence();
     }
 
     @Test(description = "TC-PIM-007: Submitting Add Employee with First/Last Name blank is blocked by validation",

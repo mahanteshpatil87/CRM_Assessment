@@ -62,6 +62,14 @@ public class DriverFactory {
                 prefs.put("download.default_directory", downloadDir);
                 prefs.put("download.prompt_for_download", false);
                 prefs.put("plugins.always_open_pdf_externally", true);
+                // Every Add User/Add Employee test enters a real-looking username and
+                // password. Without this, Chrome's native "Save password?" bubble pops
+                // up after each one - it doesn't block Selenium (it's outside the DOM),
+                // but it steals visual focus in every screenshot/report and on-screen
+                // run. Disabling the credential service suppresses it at the source
+                // rather than trying to dismiss a browser-chrome dialog after the fact.
+                prefs.put("credentials_enable_service", false);
+                prefs.put("profile.password_manager_enabled", false);
                 options.setExperimentalOption("prefs", prefs);
 
                 driver = new ChromeDriver(options);
@@ -73,6 +81,9 @@ public class DriverFactory {
                 if (headless) {
                     options.addArguments("-headless");
                 }
+                // Firefox equivalent of Chrome's credential-service prefs above -
+                // suppresses the native "Save login?" popup after Add User/Add Employee.
+                options.addPreference("signon.rememberSignons", false);
                 driver = new FirefoxDriver(options);
             }
             case EDGE -> {
@@ -82,6 +93,12 @@ public class DriverFactory {
                     options.addArguments("--headless=new");
                     options.addArguments("--window-size=1920,1080");
                 }
+                // Edge is Chromium-based and shows the same native "Save password?"
+                // bubble as Chrome - same fix (see the Chrome branch above).
+                Map<String, Object> edgePrefs = new HashMap<>();
+                edgePrefs.put("credentials_enable_service", false);
+                edgePrefs.put("profile.password_manager_enabled", false);
+                options.setExperimentalOption("prefs", edgePrefs);
                 driver = new EdgeDriver(options);
             }
             default -> throw new IllegalArgumentException("Unsupported browser type: " + browserType);

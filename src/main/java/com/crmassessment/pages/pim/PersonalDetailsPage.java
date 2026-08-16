@@ -14,6 +14,11 @@ public class PersonalDetailsPage extends PersonalDetailsPageElements {
         return getText(employeeFullNameHeading);
     }
 
+    /** PASS-evidence for "the employee was actually created" - attaches a screenshot with the visible name outlined. */
+    public void captureFullNameEvidence() {
+        captureEvidence(employeeFullNameHeading, "New employee's name visible on Personal Details page");
+    }
+
     public boolean isDisplayed() {
         // A same-SPA navigation (Save -> Personal Details) takes a moment to
         // actually update the URL - checking getCurrentUrl() synchronously

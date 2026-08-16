@@ -17,6 +17,11 @@ public class CandidateDetailsPage extends CandidateDetailsPageElements {
         return getAttribute(resumeFileName, "title");
     }
 
+    /** PASS-evidence for "the uploaded resume attachment is actually present" - attaches a screenshot with the filename outlined. */
+    public void captureResumeAttachmentEvidence() {
+        captureEvidence(resumeFileName, "Uploaded resume attachment visible on candidate's detail page");
+    }
+
     public void downloadResume() {
         click(resumeDownloadIcon);
     }

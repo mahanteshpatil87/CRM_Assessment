@@ -55,6 +55,7 @@ public class AdminUserTests extends AuthenticatedBaseTest {
         AssertsManager.getAsserts().assertEquals(
                 usernames.isEmpty() ? null : usernames.get(0), username,
                 "The created user should appear in the System Users list with the exact username entered", AssertionType.HARD);
+        listAfterCreate.captureUsernameEvidence();
     }
 
     @Test(description = "TC-ADM-002: Add User is blocked when Password and Confirm Password do not match")

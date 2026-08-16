@@ -40,6 +40,7 @@ public class EmployeeListTests extends AuthenticatedBaseTest {
         AssertsManager.getAsserts().assertTrue(
                 listAfterCreate.getFirstNameColumnValues().get(0).contains(firstName),
                 "The single result row should be the employee just created", AssertionType.HARD);
+        listAfterCreate.captureFirstNameEvidence();
     }
 
     @Test(description = "TC-PIM-002: Filtering the Employee List by Employment Status shows only matching rows")

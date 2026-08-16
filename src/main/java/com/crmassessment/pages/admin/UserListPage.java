@@ -32,6 +32,11 @@ public class UserListPage extends UserListPageElements {
         return getTextsOf(usernameColumn);
     }
 
+    /** PASS-evidence for "the new user actually appears in the list" - attaches a screenshot with the username row outlined. */
+    public void captureUsernameEvidence() {
+        captureEvidence(usernameColumn, "Newly created username visible in System Users list");
+    }
+
     public AddUserPage clickAdd() {
         click(addButton);
         return new AddUserPage(driver);

@@ -73,6 +73,11 @@ public class EmployeeListPage extends EmployeeListPageElements {
         return getTextsOf(firstNameColumn);
     }
 
+    /** PASS-evidence for "the searched employee actually appears in the results" - attaches a screenshot with the name row outlined. */
+    public void captureFirstNameEvidence() {
+        captureEvidence(firstNameColumn, "Newly created employee visible in Employee List search results");
+    }
+
     public List<String> getLastNameColumnValues() {
         return getTextsOf(lastNameColumn);
     }

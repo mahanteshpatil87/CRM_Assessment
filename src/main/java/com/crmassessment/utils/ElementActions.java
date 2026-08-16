@@ -65,6 +65,18 @@ public class ElementActions {
         return waitUtils.waitForPresence(locator).getAttribute(attributeName);
     }
 
+    /**
+     * Captures full-page PASS-evidence for a specific validated element,
+     * outlined so it's visually obvious what's being proven (e.g. a newly
+     * created employee's name), and attaches it to the current test's
+     * ExtentReports entry. See ScreenshotUtils.captureHighlightedAndAttach
+     * for why this exists separately from the failure-only screenshot path.
+     */
+    public void captureEvidence(By locator, String description) {
+        WebElement element = waitUtils.waitForVisibility(locator);
+        ScreenshotUtils.captureHighlightedAndAttach(driver, element, description);
+    }
+
     public boolean isDisplayed(By locator) {
         try {
             return waitUtils.waitForVisibility(locator).isDisplayed();
