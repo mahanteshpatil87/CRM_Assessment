@@ -1,0 +1,14 @@
+Jordan Avery
+Automation QA Test Resume
+
+Summary
+-------
+Test fixture resume used by CRM_Assessment's Selenium suite to exercise
+Recruitment > Add Candidate's Resume upload field. Well under the
+application's stated 1MB limit and uses a .txt extension, which is
+explicitly listed as accepted ("Accepts .docx, .doc, .odt, .pdf, .rtf, .txt
+up to 1MB").
+
+Experience
+----------
+- SDET Automation Framework, CRM_Assessment (test fixture)

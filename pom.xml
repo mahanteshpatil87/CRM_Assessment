@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.crmassessment</groupId>
+    <artifactId>CRM_Assessment</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>CRM_Assessment</name>
+    <description>Enterprise Selenium + TestNG + POM automation framework for SDET assessment</description>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <selenium.version>4.23.0</selenium.version>
+        <testng.version>7.10.2</testng.version>
+        <webdrivermanager.version>6.3.4</webdrivermanager.version>
+        <extentreports.version>5.1.1</extentreports.version>
+        <poi.version>5.4.0</poi.version>
+
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
+        <maven.clean.plugin.version>3.3.2</maven.clean.plugin.version>
+
+        <!-- Transitive dependency version overrides (security patches) -->
+        <httpclient5.version>5.6.1</httpclient5.version>
+        <jackson-core.version>2.21.1</jackson-core.version>
+
+        <!--
+            Defaults for command-line-overridable run parameters.
+            Named test.browser / test.headless (not just "browser"/"headless")
+            to avoid a property name colliding with the XML element name
+            of the same text inside <systemPropertyVariables> below -
+            that collision confuses IntelliJ's Maven property inspection.
+            Run normally: mvn clean test  (uses these defaults)
+            Override:     mvn clean test -Dtest.browser=firefox -Dtest.headless=true
+        -->
+        <test.browser>chrome</test.browser>
+        <test.headless>false</test.headless>
+        <!--
+            Named test.suiteXmlFile (not just "suiteXmlFile") for the same
+            reason as above: Surefire's <suiteXmlFiles> element already
+            defines a property-like name, so a same-named Maven property
+            would collide. This one must be referenced via ${...} below
+            (not hardcoded) for a command-line -D override to have any
+            interpolation point to latch onto.
+            Run regression (default): mvn clean test
+            Run smoke only:           mvn clean test -Dtest.suiteXmlFile=src/test/resources/suites/smoke.xml
+        -->
+        <test.suiteXmlFile>src/test/resources/suites/testng.xml</test.suiteXmlFile>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>${selenium.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <version>${webdrivermanager.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aventstack</groupId>
+                <artifactId>extentreports</artifactId>
+                <version>${extentreports.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!--
+                Overrides for transitive dependencies pulled in by webdrivermanager,
+                pinned to patched versions to close known CVEs even though we never
+                declare these two directly ourselves.
+            -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson-core.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>CRM_Assessment</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${test.suiteXmlFile}</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <browser>${test.browser}</browser>
+                        <headless>${test.headless}</headless>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven.clean.plugin.version}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>reports</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <excludes>
+                                <exclude>.gitkeep</exclude>
+                            </excludes>
+                        </fileset>
+                        <fileset>
+                            <directory>screenshots</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <excludes>
+                                <exclude>.gitkeep</exclude>
+                            </excludes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

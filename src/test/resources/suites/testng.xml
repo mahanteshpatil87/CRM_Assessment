@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="CRM_Assessment_Suite" verbose="1">
+    <listeners>
+        <listener class-name="com.crmassessment.listeners.TestNGListener"/>
+    </listeners>
+
+    <test name="AdminTests">
+        <classes>
+            <class name="com.crmassessment.tests.admin.AdminLoginTests"/>
+            <class name="com.crmassessment.tests.admin.AdminUserTests"/>
+        </classes>
+    </test>
+
+    <test name="PimTests">
+        <classes>
+            <class name="com.crmassessment.tests.pim.EmployeeListTests"/>
+            <class name="com.crmassessment.tests.pim.AddEmployeeTests"/>
+            <class name="com.crmassessment.tests.pim.DataDrivenEmployeeTests"/>
+        </classes>
+    </test>
+
+    <test name="LeaveTests">
+        <classes>
+            <class name="com.crmassessment.tests.leave.LeaveListTests"/>
+        </classes>
+    </test>
+
+    <test name="RecruitmentTests">
+        <classes>
+            <class name="com.crmassessment.tests.recruitment.RecruitmentTests"/>
+        </classes>
+    </test>
+
+    <test name="EndToEndTests">
+        <classes>
+            <class name="com.crmassessment.tests.endtoend.CandidateResumeEndToEndTests"/>
+        </classes>
+    </test>
+</suite>

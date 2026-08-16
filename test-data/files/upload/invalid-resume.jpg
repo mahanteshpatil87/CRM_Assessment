@@ -1,0 +1,1 @@
+Not a real image - a plain-text fixture with a .jpg extension, used deliberately by TC-REC-002 to verify that Recruitment > Add Candidate's Resume field rejects file types outside its documented accepted list (.docx, .doc, .odt, .pdf, .rtf, .txt).
