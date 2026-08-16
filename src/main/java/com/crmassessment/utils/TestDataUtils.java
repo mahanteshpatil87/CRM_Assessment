@@ -1,25 +1,22 @@
 package com.crmassessment.utils;
 
+import com.crmassessment.config.ConfigReader;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
- * Generates unique values for test data (names, usernames, emails, ids).
- * The public OrangeHRM demo is a shared sandbox that other testers hit
- * concurrently - both a stale Employee Id and a reused Username have been
- * observed to collide on save (see: docs/framework-architecture.md), so
- * every create-flow test must generate its own unique data rather than
- * relying on static fixtures.
+ * Generates test data (names, usernames, emails, ids). The public OrangeHRM
+ * demo is a shared sandbox that other testers hit concurrently - both a
+ * stale Employee Id and a reused Username have been observed to collide on
+ * save (see: docs/framework-architecture.md), so every create-flow test
+ * must generate its own unique data rather than relying on static fixtures.
  */
 public class TestDataUtils {
 
-    // A small pool of plausible real first names, used wherever a test needs
-    // a person's name to actually look like one rather than a prefix+digits
-    // QA string (e.g. "AutoQaEmp784512"). Picked from, not generated, so the
-    // visible name is always clean - any uniqueness a given test still needs
-    // (e.g. to keep a shared-demo search deterministic) is carried on a
-    // different field instead, see uniqueValue's callers.
-    private static final String[] FIRST_NAMES = {
-            "Ethan", "Olivia", "Noah", "Ava", "Liam", "Sophia", "Mason", "Isabella",
-            "Lucas", "Mia", "Elijah", "Amelia", "James", "Harper", "Benjamin", "Evelyn"
-    };
+    private static final String NAMES_SHEET = "EmployeeNames";
+    private static List<Map<String, String>> namePairs;
 
     private TestDataUtils() {
         // Utility class - no instances
@@ -34,16 +31,48 @@ public class TestDataUtils {
         return prefix + uniqueSuffix();
     }
 
-    /** A plausible real first name, picked at random from a fixed pool - see FIRST_NAMES. */
-    public static String randomFirstName() {
-        return FIRST_NAMES[java.util.concurrent.ThreadLocalRandom.current().nextInt(FIRST_NAMES.length)];
-    }
-
     public static String uniqueEmail(String localPartPrefix) {
         return prefixedLocalPart(localPartPrefix) + "@example.com";
     }
 
     private static String prefixedLocalPart(String localPartPrefix) {
         return (localPartPrefix + uniqueSuffix()).toLowerCase();
+    }
+
+    /**
+     * A random {firstName, lastName} pair, real-looking rather than
+     * synthetic (e.g. "Lucas Bennett" instead of "AutoQaEmp784512"), read
+     * from test-data/excel/employeeNames.xlsx - loaded once and reused for
+     * the life of the JVM. Kept in a spreadsheet rather than hardcoded in
+     * Java so the pool is editable without a code change, the same
+     * rationale as employeeTestData.xlsx (see TestDataProvider).
+     */
+    public static String[] randomNamePair() {
+        List<Map<String, String>> pairs = loadNamePairs();
+        Map<String, String> row = pairs.get(ThreadLocalRandom.current().nextInt(pairs.size()));
+        return new String[]{row.get("firstName"), row.get("lastName")};
+    }
+
+    private static synchronized List<Map<String, String>> loadNamePairs() {
+        if (namePairs == null) {
+            namePairs = ExcelUtils.readSheet(ConfigReader.getEmployeeNamesFile(), NAMES_SHEET);
+        }
+        return namePairs;
+    }
+
+    /**
+     * A username in the "three letters of first name + three letters of
+     * last name + 3-digit number" convention (e.g. "lucben482") - a common
+     * enterprise username scheme, and the digits still guarantee
+     * uniqueness against the shared demo's other accounts.
+     */
+    public static String generateUsername(String firstName, String lastName) {
+        String digits = String.format("%03d", ThreadLocalRandom.current().nextInt(1000));
+        return (firstLetters(firstName, 3) + firstLetters(lastName, 3) + digits).toLowerCase();
+    }
+
+    private static String firstLetters(String value, int count) {
+        String lettersOnly = value.replaceAll("[^A-Za-z]", "");
+        return lettersOnly.substring(0, Math.min(count, lettersOnly.length()));
     }
 }

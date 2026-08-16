@@ -24,8 +24,9 @@ public class CandidateResumeEndToEndTests extends AuthenticatedBaseTest {
         // The searched name must stay unique against the shared demo's other
         // candidates (same reasoning as EmployeeListTests) - carried on the
         // last name only, so the first name still reads as a real one.
-        String firstName = TestDataUtils.randomFirstName();
-        String lastName = TestDataUtils.uniqueValue("TestUser");
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = TestDataUtils.uniqueValue(name[1]);
         String email = TestDataUtils.uniqueEmail("autoqae2e");
         File originalResume = new File(ConfigReader.getValidResumeFilePath());
         FileUtils.clearDirectory(ConfigReader.getDownloadDir());

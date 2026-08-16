@@ -23,8 +23,9 @@ public class EmployeeListTests extends AuthenticatedBaseTest {
         // other testers, with no guarantee any given name still exists) - but
         // that uniqueness is carried on the last name only, so the first name
         // stays a plain, real-looking name rather than "AutoQaSearch784512".
-        String firstName = TestDataUtils.randomFirstName();
-        String lastName = TestDataUtils.uniqueValue("TestUser");
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = TestDataUtils.uniqueValue(name[1]);
         String employeeId = TestDataUtils.uniqueValue("QA");
 
         EmployeeListPage employeeListPage = new EmployeeListPage(DriverManager.getDriver());

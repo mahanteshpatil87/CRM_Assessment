@@ -20,8 +20,9 @@ public class AddEmployeeTests extends AuthenticatedBaseTest {
         // navigation to its own Personal Details page, not a name search),
         // so the name itself never needs to be unique against the shared
         // demo's other records - only Employee Id does (see below).
-        String firstName = TestDataUtils.randomFirstName();
-        String lastName = "TestUser";
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = name[1];
         // The pre-filled default Employee Id can collide with another tester's
         // record on this shared demo (verified: produces "Employee Id already
         // exists") - always supply a unique one explicitly.

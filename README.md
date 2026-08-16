@@ -45,7 +45,7 @@ src/test/java/com/crmassessment/
 src/test/resources/
   config/        config.properties (environment values)
   suites/        testng.xml (full suite), smoke.xml, regression.xml
-  testdata/      employeeTestData.xlsx (data-driven test source)
+  testdata/      employeeTestData.xlsx (data-driven test source), employeeNames.xlsx (real-looking name pool)
 
 test-data/
   excel/         manual-test-cases.xlsx — 30 manual test cases
@@ -118,6 +118,10 @@ per-run via a matching `-D` system property without editing the file (e.g. `-Dbr
   assignment-requirement compliance checklist.
 - **Data-driven source**: [src/test/resources/testdata/employeeTestData.xlsx](src/test/resources/testdata/employeeTestData.xlsx),
   read via `ExcelUtils` + a TestNG `@DataProvider`.
+- **Name pool**: [src/test/resources/testdata/employeeNames.xlsx](src/test/resources/testdata/employeeNames.xlsx) — real-looking
+  first/last name pairs (`TestDataUtils.randomNamePair`) used by every test that creates an employee
+  or candidate, so generated records read as plausible people rather than `AutoQaEmp784512`-style
+  QA strings.
 
 ## Reports
 
