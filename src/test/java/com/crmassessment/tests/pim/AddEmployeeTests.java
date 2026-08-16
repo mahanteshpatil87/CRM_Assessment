@@ -16,7 +16,11 @@ public class AddEmployeeTests extends AuthenticatedBaseTest {
     @Test(description = "TC-PIM-006: Adding an employee with only the mandatory name fields succeeds and lands on Personal Details",
             retryAnalyzer = RetryAnalyzer.class)
     public void addEmployeeWithMandatoryFieldsSucceeds() {
-        String firstName = TestDataUtils.uniqueValue("AutoQaEmp");
+        // This test only reads back the record it just created (direct
+        // navigation to its own Personal Details page, not a name search),
+        // so the name itself never needs to be unique against the shared
+        // demo's other records - only Employee Id does (see below).
+        String firstName = TestDataUtils.randomFirstName();
         String lastName = "TestUser";
         // The pre-filled default Employee Id can collide with another tester's
         // record on this shared demo (verified: produces "Employee Id already

@@ -15,10 +15,16 @@ import java.util.List;
 
 public class AdminUserTests extends AuthenticatedBaseTest {
 
-    /** A fresh employee (not yet linked to any login) so Add User's Employee Name autocomplete has a guaranteed, unused target. */
+    /**
+     * A fresh employee (not yet linked to any login) so Add User's Employee
+     * Name autocomplete has a guaranteed, unused target. The full name
+     * returned must stay unique (so the autocomplete match is unambiguous
+     * among the shared demo's other employees) - carried on the last name
+     * only, so the first name still reads as a real one.
+     */
     private String createUnlinkedEmployee() {
-        String firstName = TestDataUtils.uniqueValue("AutoQaUserLink");
-        String lastName = "TestUser";
+        String firstName = TestDataUtils.randomFirstName();
+        String lastName = TestDataUtils.uniqueValue("TestUser");
         String employeeId = TestDataUtils.uniqueValue("QA");
 
         EmployeeListPage employeeListPage = new EmployeeListPage(DriverManager.getDriver());

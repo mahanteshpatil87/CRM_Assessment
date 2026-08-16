@@ -10,6 +10,17 @@ package com.crmassessment.utils;
  */
 public class TestDataUtils {
 
+    // A small pool of plausible real first names, used wherever a test needs
+    // a person's name to actually look like one rather than a prefix+digits
+    // QA string (e.g. "AutoQaEmp784512"). Picked from, not generated, so the
+    // visible name is always clean - any uniqueness a given test still needs
+    // (e.g. to keep a shared-demo search deterministic) is carried on a
+    // different field instead, see uniqueValue's callers.
+    private static final String[] FIRST_NAMES = {
+            "Ethan", "Olivia", "Noah", "Ava", "Liam", "Sophia", "Mason", "Isabella",
+            "Lucas", "Mia", "Elijah", "Amelia", "James", "Harper", "Benjamin", "Evelyn"
+    };
+
     private TestDataUtils() {
         // Utility class - no instances
     }
@@ -21,6 +32,11 @@ public class TestDataUtils {
 
     public static String uniqueValue(String prefix) {
         return prefix + uniqueSuffix();
+    }
+
+    /** A plausible real first name, picked at random from a fixed pool - see FIRST_NAMES. */
+    public static String randomFirstName() {
+        return FIRST_NAMES[java.util.concurrent.ThreadLocalRandom.current().nextInt(FIRST_NAMES.length)];
     }
 
     public static String uniqueEmail(String localPartPrefix) {

@@ -17,12 +17,14 @@ public class EmployeeListTests extends AuthenticatedBaseTest {
     @Test(description = "TC-PIM-001: Searching the Employee List by name returns only the matching employee",
             retryAnalyzer = RetryAnalyzer.class)
     public void searchByEmployeeNameReturnsMatchingEmployee() {
-        // A uniquely-named employee is created first so this test never depends
+        // The searched name must still be unique so this test never depends
         // on shared/mutable data on the public demo (verified this session: the
         // demo is a heavily-polluted shared sandbox, ~600+ employee records from
-        // other testers, with no guarantee any given name still exists).
-        String firstName = TestDataUtils.uniqueValue("AutoQaSearch");
-        String lastName = "TestUser";
+        // other testers, with no guarantee any given name still exists) - but
+        // that uniqueness is carried on the last name only, so the first name
+        // stays a plain, real-looking name rather than "AutoQaSearch784512".
+        String firstName = TestDataUtils.randomFirstName();
+        String lastName = TestDataUtils.uniqueValue("TestUser");
         String employeeId = TestDataUtils.uniqueValue("QA");
 
         EmployeeListPage employeeListPage = new EmployeeListPage(DriverManager.getDriver());
@@ -32,13 +34,13 @@ public class EmployeeListTests extends AuthenticatedBaseTest {
 
         EmployeeListPage listAfterCreate = new EmployeeListPage(DriverManager.getDriver());
         listAfterCreate.open();
-        listAfterCreate.searchByEmployeeName(firstName);
+        listAfterCreate.searchByEmployeeName(lastName);
 
         AssertsManager.getAsserts().assertEquals(
                 listAfterCreate.getResultRowCount(), 1,
-                "Searching by the newly created employee's unique name should return exactly one row", AssertionType.HARD);
+                "Searching by the newly created employee's unique last name should return exactly one row", AssertionType.HARD);
         AssertsManager.getAsserts().assertTrue(
-                listAfterCreate.getFirstNameColumnValues().get(0).contains(firstName),
+                listAfterCreate.getLastNameColumnValues().get(0).contains(lastName),
                 "The single result row should be the employee just created", AssertionType.HARD);
         listAfterCreate.captureFirstNameEvidence();
     }
