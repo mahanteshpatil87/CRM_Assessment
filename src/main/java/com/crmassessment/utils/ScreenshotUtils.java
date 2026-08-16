@@ -31,10 +31,10 @@ public class ScreenshotUtils {
         try {
             WebDriver driver = DriverManager.getDriver();
             File srcFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            String fullPath = writeScreenshotFile(srcFile, "Failure");
+            String relativePath = writeScreenshotFile(srcFile, "Failure");
 
-            ExtentManager.getTest().addScreenCaptureFromPath(fullPath, failureContext);
-            return fullPath;
+            ExtentManager.getTest().addScreenCaptureFromPath(relativePath, failureContext);
+            return relativePath;
         } catch (IOException | IllegalStateException e) {
             // IllegalStateException covers "driver not initialized" - don't let a
             // screenshot failure mask the original assertion failure that triggered this.
@@ -67,11 +67,11 @@ public class ScreenshotUtils {
                     element);
 
             File srcFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-            String fullPath = writeScreenshotFile(srcFile, "Evidence");
+            String relativePath = writeScreenshotFile(srcFile, "Evidence");
 
             ExtentManager.getTest().pass(description);
-            ExtentManager.getTest().addScreenCaptureFromPath(fullPath, description);
-            return fullPath;
+            ExtentManager.getTest().addScreenCaptureFromPath(relativePath, description);
+            return relativePath;
         } catch (IOException | IllegalStateException e) {
             ExtentManager.getTest().warning("Could not capture evidence screenshot: " + e.getMessage());
             return null;
@@ -84,14 +84,27 @@ public class ScreenshotUtils {
         }
     }
 
+    /**
+     * Writes the screenshot into screenshots/ and returns a path relative to
+     * the report file's own location (reports/), e.g.
+     * "../screenshots/Evidence_x.png" - never an absolute filesystem path.
+     * ExtentReports embeds this string directly as an {@code <img src="...">}.
+     * An absolute Windows path (e.g. "C:\...\screenshots\x.png") is not a
+     * valid image source under any way of viewing the report - not opened
+     * directly via file://, and not served by a local web server such as
+     * IntelliJ's built-in preview server on localhost - both need a URL the
+     * browser can resolve, not a raw OS path. reports/ and screenshots/ are
+     * fixed sibling directories under the project root (see ExtentManager
+     * and this class), so "../screenshots/&lt;file&gt;" always resolves
+     * correctly relative to the report.
+     */
     private static String writeScreenshotFile(File srcFile, String prefix) throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
         String fileName = prefix + "_" + timestamp + ".png";
         String screenshotDir = System.getProperty("user.dir") + File.separator + "screenshots";
-        String fullPath = screenshotDir + File.separator + fileName;
 
         Files.createDirectories(Paths.get(screenshotDir));
-        Files.copy(srcFile.toPath(), Paths.get(fullPath));
-        return fullPath;
+        Files.copy(srcFile.toPath(), Paths.get(screenshotDir, fileName));
+        return "../screenshots/" + fileName;
     }
 }
