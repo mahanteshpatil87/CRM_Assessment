@@ -18,8 +18,7 @@ import java.util.Map;
 
 /**
  * Responsible only for CREATING a correctly configured WebDriver instance
- * for a given browser type. Does not manage lifecycle/threading - that's
- * DriverManager's job. Kept separate so each class has one responsibility.
+ * for a given browser type.
  */
 public class DriverFactory {
 
@@ -38,18 +37,10 @@ public class DriverFactory {
                 if (headless) {
                     options.addArguments("--headless=new");
                     // window.maximize() has no real display to maximize against in
-                    // headless mode and silently falls back to a small default
-                    // viewport (verified: this triggered OrangeHRM's mobile-responsive
-                    // layout - collapsed filter panels, card-based lists instead of
-                    // tables - which is why several locators built against the desktop
-                    // layout timed out). Force a real desktop viewport at launch.
+                    // headless mode and silently falls back to a small default viewport.
                     options.addArguments("--window-size=1920,1080");
                 }
                 options.addArguments("--remote-allow-origins=*");
-
-                // Reduce automation fingerprint that triggers bot-detection (e.g. Cloudflare)
-                // on target sites. Standard practice for QA automation - not bypassing any
-                // authentication or security control, just not over-announcing automation.
                 options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
                 options.setExperimentalOption("useAutomationExtension", false);
                 options.addArguments("--disable-blink-features=AutomationControlled");

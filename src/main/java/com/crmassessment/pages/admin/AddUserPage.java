@@ -16,35 +16,42 @@ public class AddUserPage extends AddUserPageElements {
         this.autocomplete = new AutocompleteComponent(driver);
     }
 
-    public void selectUserRole(String role) {
+    public AddUserPage selectUserRole(String role) {
         dropdown.selectByLabel("User Role", role);
+        return this;
     }
 
-    public void selectEmployee(String employeeNameSearchText) {
+    public AddUserPage selectEmployee(String employeeNameSearchText) {
         autocomplete.selectFirstSuggestion("Employee Name", employeeNameSearchText);
+        return this;
     }
 
-    public void selectStatus(String status) {
+    public AddUserPage selectStatus(String status) {
         dropdown.selectByLabel("Status", status);
+        return this;
     }
 
-    public void enterUsername(String username) {
+    public AddUserPage enterUsername(String username) {
         type(usernameInput, username);
+        return this;
     }
 
-    public void enterPassword(String password) {
+    public AddUserPage enterPassword(String password) {
         type(passwordInput, password);
+        return this;
     }
 
-    public void enterConfirmPassword(String password) {
+    public AddUserPage enterConfirmPassword(String password) {
         type(confirmPasswordInput, password);
+        return this;
     }
 
-    public void clickSave() {
+    public AddUserPage clickSave() {
         click(saveButton);
+        return this;
     }
 
-    public void addUser(String role, String employeeNameSearchText, String status, String username, String password) {
+    public AddUserPage addUser(String role, String employeeNameSearchText, String status, String username, String password) {
         selectUserRole(role);
         selectEmployee(employeeNameSearchText);
         selectStatus(status);
@@ -52,6 +59,7 @@ public class AddUserPage extends AddUserPageElements {
         enterPassword(password);
         enterConfirmPassword(password);
         clickSave();
+        return this;
     }
 
     /**
@@ -72,5 +80,11 @@ public class AddUserPage extends AddUserPageElements {
 
     public String getConfirmPasswordValidationMessage() {
         return getText(confirmPasswordValidationMessage);
+    }
+
+    /** PASS-evidence for "the password-mismatch validation actually appears" - attaches a screenshot with the message outlined. */
+    public AddUserPage captureMismatchValidationEvidence() {
+        captureEvidence(confirmPasswordValidationMessage, "Confirm Password mismatch validation visible on Add User");
+        return this;
     }
 }

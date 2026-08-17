@@ -3,11 +3,7 @@ package com.crmassessment.tests.pim;
 import com.crmassessment.assertion.AssertionType;
 import com.crmassessment.assertion.AssertsManager;
 import com.crmassessment.base.AuthenticatedBaseTest;
-import com.crmassessment.driver.DriverManager;
 import com.crmassessment.listeners.RetryAnalyzer;
-import com.crmassessment.pages.pim.AddEmployeePage;
-import com.crmassessment.pages.pim.EmployeeListPage;
-import com.crmassessment.pages.pim.PersonalDetailsPage;
 import com.crmassessment.testdata.EmployeeTestData;
 import com.crmassessment.testdata.TestDataProvider;
 import com.crmassessment.utils.TestDataUtils;
@@ -26,17 +22,50 @@ public class DataDrivenEmployeeTests extends AuthenticatedBaseTest {
         // Employee Id (below) that the app actually requires to be unique.
         String firstName = employeeTestData.firstName();
         String employeeId = TestDataUtils.uniqueValue("QA");
+        String driversLicenseNumber = TestDataUtils.randomDriversLicenseNumber();
+        String licenseExpiryDate = TestDataUtils.randomLicenseExpiryDate();
+        String maritalStatus = TestDataUtils.randomMaritalStatus();
+        String dateOfBirth = TestDataUtils.randomDateOfBirth();
+        String gender = TestDataUtils.randomGender();
+        String bloodType = TestDataUtils.randomBloodType();
+        String testField = TestDataUtils.uniqueValue("QA");
 
-        EmployeeListPage employeeListPage = new EmployeeListPage(DriverManager.getDriver());
-        employeeListPage.open();
-        AddEmployeePage addEmployeePage = employeeListPage.clickAdd();
+        pages.employeeListPage
+                .open();
 
-        PersonalDetailsPage personalDetailsPage = addEmployeePage.save(firstName, employeeTestData.lastName(), employeeId);
+        pages.employeeListPage
+                .clickAdd();
+
+        pages.addEmployeePage
+                .save(firstName, employeeTestData.lastName(), employeeId);
 
         AssertsManager.getAsserts().assertEquals(
-                personalDetailsPage.getEmployeeFullName(), firstName + " " + employeeTestData.lastName(),
+                pages.personalDetailsPage.getEmployeeFullName(), firstName + " " + employeeTestData.lastName(),
                 "Employee created from Excel row (" + employeeTestData.firstName() + " " + employeeTestData.lastName()
                         + ") should show the exact generated name on Personal Details", AssertionType.HARD);
-        personalDetailsPage.captureFullNameEvidence();
+
+        pages.personalDetailsPage
+                .captureFullNameEvidence();
+
+        // Beyond Name/Employee Id, Personal Details also carries demographic
+        // and identity fields (Date of Birth, Nationality, etc.) that Add
+        // Employee's own quick-create form doesn't expose - fill and verify
+        // those here rather than leaving them untested.
+        pages.personalDetailsPage
+                .fillAdditionalDetails(driversLicenseNumber, licenseExpiryDate, "Indian", maritalStatus,
+                        dateOfBirth, gender, bloodType, testField);
+
+        AssertsManager.getAsserts().assertEquals(
+                pages.personalDetailsPage.getDateOfBirth(), dateOfBirth,
+                "Personal Details should show the exact Date of Birth just entered", AssertionType.HARD);
+        AssertsManager.getAsserts().assertEquals(
+                pages.personalDetailsPage.getGender(), gender,
+                "Personal Details should show the exact Gender just selected", AssertionType.HARD);
+        AssertsManager.getAsserts().assertEquals(
+                pages.personalDetailsPage.getBloodType(), bloodType,
+                "Custom Fields should show the exact Blood Type just selected", AssertionType.HARD);
+
+        pages.personalDetailsPage
+                .captureAdditionalDetailsEvidence();
     }
 }

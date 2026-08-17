@@ -26,6 +26,11 @@ public class DropdownComponent {
         elementActions.click(optionMatching(optionText));
     }
 
+    /** The currently selected option's visible text, for asserting a selection was saved/persisted. */
+    public String getSelectedText(String fieldLabel) {
+        return elementActions.getText(triggerFor(fieldLabel));
+    }
+
     private By triggerFor(String fieldLabel) {
         return By.xpath(String.format(
                 "//label[normalize-space()='%s']/ancestor::div[%s][1]" +

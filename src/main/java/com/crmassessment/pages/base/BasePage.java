@@ -72,6 +72,11 @@ public abstract class BasePage {
         elementActions.captureEvidence(locator, description);
     }
 
+    /** Same as captureEvidence, but for the Nth match of a repeated locator. */
+    protected void captureEvidence(By locator, int index, String description) {
+        elementActions.captureNthEvidence(locator, index, description);
+    }
+
     protected boolean isSelected(By locator) {
         return elementActions.isSelected(locator);
     }

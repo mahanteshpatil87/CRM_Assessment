@@ -22,7 +22,6 @@ import java.util.Map;
 public class ExcelUtils {
 
     private ExcelUtils() {
-        // Utility class - no instances
     }
 
     public static List<Map<String, String>> readSheet(String classpathResourcePath, String sheetName) {

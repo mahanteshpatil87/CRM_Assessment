@@ -4,9 +4,6 @@ import com.crmassessment.assertion.AssertionType;
 import com.crmassessment.assertion.AssertsManager;
 import com.crmassessment.base.AuthenticatedBaseTest;
 import com.crmassessment.config.ConfigReader;
-import com.crmassessment.driver.DriverManager;
-import com.crmassessment.pages.recruitment.AddCandidatePage;
-import com.crmassessment.pages.recruitment.CandidateListPage;
 import com.crmassessment.utils.TestDataUtils;
 import org.testng.annotations.Test;
 
@@ -25,20 +22,21 @@ public class RecruitmentTests extends AuthenticatedBaseTest {
         String email = TestDataUtils.uniqueEmail("autoqacand");
         String resumePath = new File(ConfigReader.getValidResumeFilePath()).getAbsolutePath();
 
-        CandidateListPage candidateListPage = new CandidateListPage(DriverManager.getDriver());
-        candidateListPage.open();
-        AddCandidatePage addCandidatePage = candidateListPage.clickAdd();
+        pages.candidateListPage
+                .open();
 
-        addCandidatePage.enterFirstName(firstName);
-        addCandidatePage.enterLastName(lastName);
-        addCandidatePage.enterEmail(email);
-        addCandidatePage.uploadResume(resumePath);
-        addCandidatePage.checkConsent();
-        addCandidatePage.clickSave();
+        pages.candidateListPage
+                .clickAdd();
+
+        pages.addCandidatePage
+                .addCandidateWithResume(firstName, lastName, email, resumePath);
 
         AssertsManager.getAsserts().assertTrue(
-                addCandidatePage.isSavedSuccessfully(),
+                pages.addCandidatePage.isSavedSuccessfully(),
                 "Saving a candidate with mandatory fields and a valid resume should succeed and assign a candidate id", AssertionType.HARD);
+
+        pages.addCandidatePage
+                .captureSavedCandidateEvidence();
     }
 
     @Test(description = "TC-REC-002: Uploading a resume file outside the accepted types is rejected")
@@ -49,18 +47,20 @@ public class RecruitmentTests extends AuthenticatedBaseTest {
         String email = TestDataUtils.uniqueEmail("autoqacandbad");
         String invalidResumePath = new File(ConfigReader.getInvalidResumeFilePath()).getAbsolutePath();
 
-        CandidateListPage candidateListPage = new CandidateListPage(DriverManager.getDriver());
-        candidateListPage.open();
-        AddCandidatePage addCandidatePage = candidateListPage.clickAdd();
+        pages.candidateListPage
+                .open();
 
-        addCandidatePage.enterFirstName(firstName);
-        addCandidatePage.enterLastName(lastName);
-        addCandidatePage.enterEmail(email);
-        addCandidatePage.uploadResume(invalidResumePath);
-        addCandidatePage.clickSave();
+        pages.candidateListPage
+                .clickAdd();
+
+        pages.addCandidatePage
+                .addCandidateWithResume(firstName, lastName, email, invalidResumePath);
 
         AssertsManager.getAsserts().assertFalse(
-                addCandidatePage.isSavedSuccessfully(),
+                pages.addCandidatePage.isSavedSuccessfully(),
                 "A candidate save with a resume file outside the accepted types/size must not succeed", AssertionType.HARD);
+
+        pages.addCandidatePage
+                .captureStillOnFormEvidence();
     }
 }

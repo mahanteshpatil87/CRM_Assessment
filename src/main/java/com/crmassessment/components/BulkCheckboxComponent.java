@@ -19,12 +19,6 @@ import org.openqa.selenium.WebDriver;
 public class BulkCheckboxComponent {
 
     private final ElementActions elementActions;
-
-    // The real <input type="checkbox"> renders with opacity:0 (verified against
-    // the live DOM) - a styled sibling <span> provides the visible appearance.
-    // Clicks target the enclosing <label> (visible, natively toggles the
-    // input); state is read from the input itself via ElementActions'
-    // presence-based (not visibility-based) isSelected/isNthSelected.
     private final By headerCheckboxLabel = By.cssSelector(".oxd-table-header .oxd-checkbox-wrapper label");
     private final By headerCheckboxInput = By.cssSelector(".oxd-table-header .oxd-checkbox-wrapper input[type='checkbox']");
     private final By rowCheckboxLabels = By.cssSelector(".oxd-table-body .oxd-checkbox-wrapper label");
@@ -36,6 +30,7 @@ public class BulkCheckboxComponent {
 
     public void selectAllRows() {
         elementActions.click(headerCheckboxLabel);
+        elementActions.waitForNthSelected(rowCheckboxInputs, 0, true, java.time.Duration.ofSeconds(60));
     }
 
     public boolean isHeaderChecked() {
@@ -52,5 +47,10 @@ public class BulkCheckboxComponent {
 
     public int getVisibleRowCount() {
         return elementActions.countElements(rowCheckboxInputs);
+    }
+
+    /** PASS-evidence for a specific row's checkbox state - attaches a screenshot with that row's checkbox label outlined. */
+    public void captureRowEvidence(int rowIndex, String description) {
+        elementActions.captureNthEvidence(rowCheckboxLabels, rowIndex, description);
     }
 }

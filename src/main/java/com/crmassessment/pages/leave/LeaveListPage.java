@@ -18,15 +18,17 @@ public class LeaveListPage extends LeaveListPageElements {
         this.dropdown = new DropdownComponent(driver);
     }
 
-    public void open() {
+    public LeaveListPage open() {
         navigateTo(ConfigReader.getAppHost() + ROUTE);
+        return this;
     }
 
-    public void filterByLeaveTypeAndStatus(String leaveType, String status) {
+    public LeaveListPage filterByLeaveTypeAndStatus(String leaveType, String status) {
         dropdown.selectByLabel("Leave Type", leaveType);
         dropdown.selectByLabel("Show Leave with Status", status);
         click(searchButton);
         waitForFormLoaderToDisappear();
+        return this;
     }
 
     public int getResultRowCount() {
@@ -40,4 +42,11 @@ public class LeaveListPage extends LeaveListPageElements {
     public List<String> getStatusColumnValues() {
         return getTextsOf(statusColumn);
     }
+
+    // Deliberately no evidence-capture method here, unlike every other page
+    // in the suite - see the comment in LeaveListTests.filterByLeaveTypeAndStatusShowsOnlyMatchingRows
+    // for why: this page's filtered result set is shared, ambient data this
+    // test doesn't own, and was verified live to be able to genuinely empty
+    // out between an assertion and a screenshot attempt under real
+    // concurrent load - a longer timeout doesn't fix that.
 }
