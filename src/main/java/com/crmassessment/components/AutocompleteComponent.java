@@ -27,12 +27,11 @@ public class AutocompleteComponent {
      * bound value for the form to submit.
      * <p>
      * The suggestion locator is scoped to the same field's .oxd-input-group
-     * (verified against the live DOM: the dropdown renders nested inside
-     * it, not portaled elsewhere) rather than searching the whole document
-     * for "any autocomplete dropdown, first match" - a page can have more
-     * than one autocomplete field (e.g. Employee List's Employee Name *and*
-     * Supervisor Name), so an unscoped locator risked resolving to the
-     * wrong field's suggestions.
+     * (the dropdown renders nested inside it, not portaled elsewhere)
+     * rather than searching the whole document for "any autocomplete
+     * dropdown, first match" - a page can have more than one autocomplete
+     * field (e.g. Employee List's Employee Name *and* Supervisor Name), so
+     * an unscoped locator risks resolving to the wrong field's suggestions.
      * <p>
      * Also waits for the rendered suggestion to actually contain the typed
      * text before clicking. The suggestion list is debounced per keystroke,

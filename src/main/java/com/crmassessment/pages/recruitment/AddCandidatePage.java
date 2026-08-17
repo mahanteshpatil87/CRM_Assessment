@@ -58,11 +58,11 @@ public class AddCandidatePage extends AddCandidatePageElements {
 
     /**
      * Fills every field a candidate-with-resume test needs and saves in one
-     * call: mandatory fields (First Name, Last Name, Email, verified on the
-     * live app) plus the resume upload and consent checkbox. Covers every
-     * "add a candidate with a resume" test in the suite, whether the save
-     * is expected to succeed or be rejected (e.g. an invalid file type) -
-     * checking consent doesn't affect that outcome either way.
+     * call: the mandatory fields (First Name, Last Name, Email) plus the
+     * resume upload and consent checkbox. Covers every "add a candidate
+     * with a resume" test in the suite, whether the save is expected to
+     * succeed or be rejected (e.g. an invalid file type) - checking consent
+     * doesn't affect that outcome either way.
      */
     public AddCandidatePage addCandidateWithResume(String firstName, String lastName, String email, String resumeAbsolutePath) {
         enterFirstName(firstName);

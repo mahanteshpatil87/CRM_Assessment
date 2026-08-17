@@ -44,9 +44,8 @@ public class LeaveListPage extends LeaveListPageElements {
     }
 
     // Deliberately no evidence-capture method here, unlike every other page
-    // in the suite - see the comment in LeaveListTests.filterByLeaveTypeAndStatusShowsOnlyMatchingRows
-    // for why: this page's filtered result set is shared, ambient data this
-    // test doesn't own, and was verified live to be able to genuinely empty
-    // out between an assertion and a screenshot attempt under real
-    // concurrent load - a longer timeout doesn't fix that.
+    // in the suite: this page's filtered result set is shared, ambient data
+    // this test doesn't own, and can genuinely empty out between an
+    // assertion and a screenshot attempt under real concurrent load on the
+    // shared demo - a longer timeout doesn't fix that.
 }

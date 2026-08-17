@@ -41,13 +41,9 @@ public class WaitUtils {
 
     /**
      * Waits for OrangeHRM's form-level loading overlay (.oxd-form-loader) to
-     * be gone. Returns immediately (true) if it was never shown in the first
-     * place - invisibilityOfElementLocated treats "not present" as success.
-     * Verified against the live app: typing into an async-validated field
-     * (e.g. Add Employee's Employee Id, which triggers a server-side
-     * uniqueness check) can leave this overlay up long enough that an
-     * immediately-following Save click gets ElementClickInterceptedException
-     * with the loader reported as the element actually receiving the click.
+     * be gone. An async-validated field (e.g. Add Employee's Employee Id)
+     * can leave this overlay up long enough that an immediately-following
+     * Save click gets intercepted by it instead of the button.
      */
     public boolean waitForFormLoaderToDisappear() {
         return waitForInvisibility(By.cssSelector(".oxd-form-loader"));
@@ -61,12 +57,9 @@ public class WaitUtils {
      * Waits until the Nth match of a repeated locator is visible, and
      * returns it - unlike waitForAllVisible, this doesn't require every
      * match in the collection to be simultaneously visible, only the one
-     * actually needed. Requiring the whole collection is needlessly
-     * fragile when the match count can shift for reasons unrelated to the
-     * specific element being acted on (verified live: clicking the Nth row
-     * checkbox in a results table timed out because the table's total row
-     * count wasn't staying constant on the shared, concurrently-used
-     * public demo, even though the specific row being clicked was fine).
+     * actually needed. The row count on the shared demo can shift for
+     * reasons unrelated to the specific row being acted on, so requiring
+     * the whole collection to settle first is needlessly fragile.
      */
     public WebElement waitForNthVisible(By locator, int index) {
         return wait.until(driver -> {
@@ -110,9 +103,7 @@ public class WaitUtils {
      * rendered (e.g. Add Employee's suggested next Employee Id). Typing
      * into such a field before that populate lands races it: clear() wipes
      * an already-empty field, sendKeys() lands first, and the late default
-     * then gets merged into what was just typed instead of replaced.
-     * Verified against the live app: entering "QA70150671" without this
-     * wait produced a corrupted field value of "0416QA70150671".
+     * then merges into what was just typed instead of being replaced.
      */
     public boolean waitForNonEmptyValue(By locator) {
         WebElement element = waitForVisibility(locator);
@@ -124,11 +115,8 @@ public class WaitUtils {
      * the expected state - for actions where clicking one control (e.g. a
      * bulk "select all" header checkbox) triggers an async state change on
      * OTHER elements (each row's own checkbox) rather than the clicked
-     * element itself. Verified live: reading a row's checked state
-     * immediately after clicking "select all" can race OrangeHRM's Vue app
-     * propagating that state down to the row - the header click completes
-     * and returns before every row checkbox has actually re-rendered as
-     * checked.
+     * element itself. Reading a row's checked state immediately after the
+     * click can race the app propagating that state down to the row.
      */
     public boolean waitForNthSelected(By locator, int index, boolean expectedSelected) {
         return waitForNthSelected(locator, index, expectedSelected,
@@ -137,11 +125,9 @@ public class WaitUtils {
 
     /**
      * Same as {@link #waitForNthSelected(By, int, boolean)} but with a
-     * caller-supplied timeout, for the rare case where the default explicit
-     * timeout genuinely isn't enough margin - verified live: propagating a
-     * bulk "select all" down to every row checkbox occasionally took longer
-     * than the default 30s under real load on the shared demo, not just a
-     * brief client-side race.
+     * caller-supplied timeout, for the rare case where propagating a bulk
+     * "select all" down to every row checkbox takes longer than the
+     * default timeout under real load on the shared demo.
      */
     public boolean waitForNthSelected(By locator, int index, boolean expectedSelected, Duration timeout) {
         return new WebDriverWait(driver, timeout).until(driver -> {
@@ -156,12 +142,10 @@ public class WaitUtils {
     /**
      * Waits until an element's visible text is non-empty - the same
      * shell-renders-before-data pattern as waitForNonEmptyValue, but for
-     * text content rather than an input's value attribute. Verified against
-     * the live app: after Add Employee's Save navigates to Personal
-     * Details, the name heading element is immediately present and visible
-     * (an empty shell) while the actual employee data streams in a moment
-     * later - checking isDisplayed()/getText() right away reads the empty
-     * shell as success instead of waiting for the real content.
+     * text content rather than an input's value attribute. OrangeHRM's SPA
+     * can render an element as present and visible before its actual data
+     * has streamed in, so isDisplayed()/getText() alone can read the empty
+     * shell as success.
      */
     public boolean waitForNonEmptyText(By locator) {
         return wait.until(driver -> {

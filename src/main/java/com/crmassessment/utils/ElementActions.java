@@ -108,11 +108,10 @@ public class ElementActions {
      * <p>
      * OrangeHRM's checkboxes (Consent to keep data, Employee List row
      * selects, etc.) render the real &lt;input type="checkbox"&gt; with
-     * opacity:0 and show a styled sibling &lt;span&gt; instead - verified
-     * against the live DOM. Selenium correctly refuses to click an
-     * invisible element, so the state is read from the input but the
-     * click is dispatched to its enclosing, visible &lt;label&gt;, which
-     * natively toggles the input per standard HTML label/input association.
+     * opacity:0 and show a styled sibling &lt;span&gt; instead. Selenium
+     * refuses to click an invisible element, so the state is read from the
+     * input but the click is dispatched to its enclosing, visible
+     * &lt;label&gt;, which natively toggles the input.
      */
     public void setCheckbox(By locator, boolean shouldBeChecked) {
         WebElement checkbox = waitUtils.waitForPresence(locator);
@@ -189,12 +188,11 @@ public class ElementActions {
     /**
      * Waits for an async-auto-populated field's default value to actually
      * land, then replaces it. Uses a real select-all + delete keystroke
-     * sequence rather than WebElement.clear(): verified against the live
-     * app that .clear() does not reliably clear this Vue-controlled input -
-     * it left the DOM value showing the old default value with the newly
-     * typed text appended after it (e.g. "0438" + "QA71803352" instead of
-     * just "QA71803352"), because Vue's v-model didn't register clear()'s
-     * DOM-level change as a real input event the way it does real keystrokes.
+     * sequence rather than WebElement.clear(): .clear() doesn't reliably
+     * clear this Vue-controlled input, since Vue's v-model doesn't register
+     * a DOM-level clear() as a real input event the way it does keystrokes -
+     * it can leave the old default value still merged in ahead of the newly
+     * typed text instead of being replaced.
      */
     public void typeOverAutoPopulatedValue(By locator, String text) {
         waitUtils.waitForNonEmptyValue(locator);
@@ -233,11 +231,10 @@ public class ElementActions {
      * <p>
      * Retries on a stale element rather than letting it propagate: the
      * element list is fetched once, then read one at a time, and a results
-     * table can re-render between that fetch and a later element's read
-     * (verified live: this raced against Employee List's status-filter
-     * results). A staleness mid-read means the whole snapshot is now
-     * meaningless, not just the one element - re-fetching the full list
-     * fresh and starting over is the only safe recovery.
+     * table can re-render between that fetch and a later element's read.
+     * A staleness mid-read means the whole snapshot is now meaningless, not
+     * just the one element - re-fetching the full list fresh is the only
+     * safe recovery.
      */
     public List<String> getTextsOf(By locator) {
         for (int attempt = 1; attempt <= 3; attempt++) {

@@ -20,8 +20,8 @@ public class AddEmployeeTests extends AuthenticatedBaseTest {
         String firstName = name[0];
         String lastName = name[1];
         // The pre-filled default Employee Id can collide with another tester's
-        // record on this shared demo (verified: produces "Employee Id already
-        // exists") - always supply a unique one explicitly.
+        // record on this shared demo, failing the save with "Employee Id
+        // already exists" - always supply a unique one explicitly.
         String employeeId = TestDataUtils.uniqueValue("QA");
         String driversLicenseNumber = TestDataUtils.randomDriversLicenseNumber();
         String licenseExpiryDate = TestDataUtils.randomLicenseExpiryDate();

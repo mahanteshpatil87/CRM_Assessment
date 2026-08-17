@@ -31,7 +31,7 @@ public class PersonalDetailsPage extends PersonalDetailsPageElements {
     }
 
     // OrangeHRM's own placeholder reads "yyyy-dd-mm" (day before month, not
-    // the usual yyyy-mm-dd) - verified live, both here and on Date of Birth.
+    // the usual yyyy-mm-dd) - same on Date of Birth.
     public PersonalDetailsPage enterLicenseExpiryDate(String licenseExpiryDateYyyyDdMm) {
         type(licenseExpiryDateInput, licenseExpiryDateYyyyDdMm);
         return this;
@@ -54,10 +54,10 @@ public class PersonalDetailsPage extends PersonalDetailsPageElements {
 
     /**
      * OrangeHRM renders the real &lt;input type="radio"&gt; with opacity:0
-     * and a styled sibling label instead (verified live - the same pattern
-     * as ElementActions.setCheckbox's checkboxes), so the click is
-     * dispatched to the enclosing, visible &lt;label&gt; rather than the
-     * radio input itself.
+     * and a styled sibling label instead - the same pattern as
+     * ElementActions.setCheckbox's checkboxes - so the click is dispatched
+     * to the enclosing, visible &lt;label&gt; rather than the radio input
+     * itself.
      */
     public PersonalDetailsPage selectGender(String gender) {
         click("Male".equalsIgnoreCase(gender) ? genderMaleLabel : genderFemaleLabel);
@@ -96,8 +96,8 @@ public class PersonalDetailsPage extends PersonalDetailsPageElements {
      * Fills every additional Personal Details field beyond Name/Employee Id
      * and saves both of the page's forms: the main form (driver's license,
      * nationality, marital status, date of birth, gender) and the separate
-     * Custom Fields form (blood type, test field) - verified live that these
-     * are two independent forms/Save buttons on the same page, not one.
+     * Custom Fields form (blood type, test field) - two independent
+     * forms/Save buttons on the same page, not one.
      */
     public PersonalDetailsPage fillAdditionalDetails(String driversLicenseNumber, String licenseExpiryDateYyyyDdMm,
             String nationality, String maritalStatus, String dateOfBirthYyyyDdMm, String gender,
@@ -158,10 +158,7 @@ public class PersonalDetailsPage extends PersonalDetailsPageElements {
         // A same-SPA navigation (Save -> Personal Details) takes a moment to
         // actually update the URL - checking getCurrentUrl() synchronously
         // right after clickSave() returns can read the still-old URL and
-        // report false before the navigation has even happened (verified:
-        // getEmployeeFullName(), which doesn't URL-check first and instead
-        // just keeps polling for the element/text to appear, was unaffected
-        // by this same race - isDisplayed() needs the equivalent wait).
+        // report false before the navigation has even happened.
         if (!waitForUrlMatches(".*/viewPersonalDetails.*")) {
             return false;
         }

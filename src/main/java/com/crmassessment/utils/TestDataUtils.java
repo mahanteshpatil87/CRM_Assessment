@@ -28,9 +28,9 @@ public class TestDataUtils {
      * runs. Uses nanoTime() rather than currentTimeMillis(): Windows' timer
      * resolution is coarse (~15ms), so two calls microseconds apart (e.g.
      * one for an Employee Id, one for a last name, in the same test method)
-     * can return the exact same millisecond and therefore the same suffix -
-     * verified live. nanoTime()'s much finer resolution keeps back-to-back
-     * calls independent.
+     * could return the exact same millisecond and therefore the same
+     * suffix. nanoTime()'s much finer resolution keeps back-to-back calls
+     * independent.
      */
     public static String uniqueSuffix() {
         return String.format("%05d", Math.abs(System.nanoTime()) % 100_000);
@@ -107,8 +107,8 @@ public class TestDataUtils {
 
     /**
      * A random past Date of Birth (22-58 years old), in the "yyyy-dd-mm"
-     * format OrangeHRM's own field expects - verified live: day before
-     * month, not the usual yyyy-mm-dd.
+     * format OrangeHRM's own field expects (day before month, not the
+     * usual yyyy-mm-dd).
      */
     public static String randomDateOfBirth() {
         int age = ThreadLocalRandom.current().nextInt(22, 59);

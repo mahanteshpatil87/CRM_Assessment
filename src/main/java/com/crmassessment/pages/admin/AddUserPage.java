@@ -63,11 +63,10 @@ public class AddUserPage extends AddUserPageElements {
     }
 
     /**
-     * Waits for the confirmed real post-save redirect (verified against the
-     * live app: a successful Add User save navigates to
-     * /admin/viewSystemUsers) before returning, so callers that immediately
-     * navigate elsewhere (e.g. straight to a follow-up search) don't race
-     * the still-in-flight save request.
+     * A successful Add User save navigates to /admin/viewSystemUsers -
+     * waiting for that here means callers that immediately navigate
+     * elsewhere (e.g. straight to a follow-up search) don't race the
+     * still-in-flight save request.
      */
     public boolean isSavedSuccessfully() {
         return waitForUrlMatches(".*/viewSystemUsers.*");

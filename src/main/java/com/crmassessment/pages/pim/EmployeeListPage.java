@@ -37,10 +37,10 @@ public class EmployeeListPage extends EmployeeListPageElements {
         // is not a reliable "results re-rendered" signal - it may never
         // appear at all for a simple list search, in which case
         // waitForFormLoaderToDisappear() returns instantly and the very
-        // next read can land on the stale pre-search row set (verified:
-        // this produced both spurious 0 and spurious 16 row counts on
-        // different runs). Waiting for the first row to actually contain
-        // the searched name ties the wait to the real post-search state.
+        // next read can land on the stale pre-search row set (both spurious
+        // 0 and spurious non-zero counts, seen on different runs). Waiting
+        // for the first row to actually contain the searched name ties the
+        // wait to the real post-search state.
         waitForTextToBePresent(tableRows, name);
         return this;
     }

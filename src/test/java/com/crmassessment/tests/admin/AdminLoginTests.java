@@ -60,10 +60,10 @@ public class AdminLoginTests extends BaseTest {
                 "Logout should return to the login route", AssertionType.HARD);
 
         // The browser's back-forward cache can repaint the last-seen dashboard
-        // DOM/URL from memory without any new request (verified: right after
-        // Back, the URL alone can still read /dashboard even though the
-        // session is gone). A refresh bypasses bfcache and forces a real
-        // request, which is what actually proves whether the session is dead.
+        // DOM/URL from memory without any new request, so the URL alone can
+        // still read /dashboard right after Back even though the session is
+        // gone. A refresh bypasses bfcache and forces a real request, which
+        // is what actually proves whether the session is dead.
         DriverManager.getDriver().navigate().back();
         DriverManager.getDriver().navigate().refresh();
         AssertsManager.getAsserts().assertTrue(

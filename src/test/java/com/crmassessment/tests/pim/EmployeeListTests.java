@@ -15,11 +15,11 @@ public class EmployeeListTests extends AuthenticatedBaseTest {
             retryAnalyzer = RetryAnalyzer.class)
     public void searchByEmployeeNameReturnsMatchingEmployee() {
         // The searched name must still be unique so this test never depends
-        // on shared/mutable data on the public demo (verified this session: the
-        // demo is a heavily-polluted shared sandbox, ~600+ employee records from
-        // other testers, with no guarantee any given name still exists) - but
-        // that uniqueness is carried on the last name only, so the first name
-        // stays a plain, real-looking name rather than "AutoQaSearch784512".
+        // on shared/mutable data on the public demo - it's a heavily-polluted
+        // shared sandbox with ~600+ employee records from other testers, no
+        // guarantee any given name still exists. That uniqueness is carried
+        // on the last name only, so the first name stays a plain, real-looking
+        // name rather than "AutoQaSearch784512".
         String[] name = TestDataUtils.randomNamePair();
         String firstName = name[0];
         String lastName = TestDataUtils.uniqueValue(name[1]);

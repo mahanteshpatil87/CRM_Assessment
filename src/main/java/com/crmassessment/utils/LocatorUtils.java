@@ -20,9 +20,7 @@ public class LocatorUtils {
      * (which literally starts with "oxd-input-group") - and that wrapper
      * sits *closer* to the label than the real group and contains no
      * input, so any ancestor::div[...][1] search using the naive predicate
-     * silently resolves to it instead of the real field group. Verified
-     * against the live DOM via document.evaluate: 0 matches with the naive
-     * predicate, 1 correct match with this padded version.
+     * silently resolves to it instead of the real field group.
      */
     public static final String INPUT_GROUP_CLASS_PREDICATE =
             "contains(concat(' ', normalize-space(@class), ' '), ' oxd-input-group ')";

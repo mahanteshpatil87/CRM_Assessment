@@ -21,10 +21,10 @@ public class AddEmployeePage extends AddEmployeePageElements {
 
     /**
      * The Employee Id field is pre-filled with a server-suggested value that
-     * can collide with another user's record on the shared public demo
-     * (verified: saving with the default value can fail with "Employee Id
-     * already exists"). Callers should always pass their own unique id
-     * rather than relying on the pre-filled default.
+     * can collide with another user's record on the shared public demo,
+     * failing the save with "Employee Id already exists". Callers should
+     * always pass their own unique id rather than relying on the pre-filled
+     * default.
      */
     public AddEmployeePage enterEmployeeId(String employeeId) {
         typeOverAutoPopulatedValue(employeeIdInput, employeeId);
@@ -35,9 +35,9 @@ public class AddEmployeePage extends AddEmployeePageElements {
         // The page's own initial async setup (employee-id suggestion, photo
         // config, dropdown data) can still be in flight if Save is clicked
         // immediately after navigating here without any prior interaction
-        // (e.g. the blank-mandatory-fields validation test) - verified this
-        // causes an ElementClickIntercepted on the loader overlay. Waiting
-        // for Employee Id's async default to land is a reliable proxy for
+        // (e.g. the blank-mandatory-fields validation test), which
+        // intercepts the click on the loader overlay instead. Waiting for
+        // Employee Id's async default to land is a reliable proxy for
         // "this page has finished its initial load", regardless of whether
         // the caller is about to overwrite that value or not.
         waitForNonEmptyValue(employeeIdInput);
