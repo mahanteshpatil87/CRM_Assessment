@@ -24,6 +24,24 @@ Reusable widgets that appear on more than one page (custom dropdown, autocomplet
 bulk-select checkboxes) are factored out into `components/*` rather than duplicated per page
 object — each page composes the components it needs rather than re-implementing the same XPath.
 
+`pages.AllPages` is a plain registry holding one pre-constructed instance of every page object,
+built once in `BaseTest.setUp()` and exposed to every test as `protected AllPages pages`. Test code
+always goes through `pages.xxxPage.method()` rather than holding a local `XxxPage` variable from a
+`new XxxPage(driver)` call scattered through the test - the one exception is a genuine
+page-transition return value from a fluent method (e.g. `AddEmployeePage.save(...)` returns the
+`PersonalDetailsPage` it navigates to), and even those are typically discarded in favor of the
+registry reference on the next line, since `pages.personalDetailsPage` already points at the same
+object. This keeps every test method's page-object wiring uniform and means adding a new page only
+requires one new field + constructor line in `AllPages`, not a `new` call at every test call site
+that happens to need it.
+
+Every void action method on a page object returns `this` (its own page type) rather than `void`, so
+call sites can be written either as a fluent chain or as separate statements - this codebase's own
+convention (matching the user's own edits to the earliest test classes) is one `pages.xxxPage`
+line followed by one indented `.method(args);` line per action, never chaining multiple calls into
+a single statement even where it would compile. Getters (`boolean`/`String`/`List`/`int` reads) and
+true page-transition methods are unaffected by this - they still return whatever they actually are.
+
 ## Driver lifecycle
 
 `driver.DriverFactory` is responsible only for *creating* a correctly configured `WebDriver` for a
@@ -68,6 +86,20 @@ sandbox) is that **the wait condition matters as much as whether you wait at all
   concatenation. `ElementActions.typeOverAutoPopulatedValue` replaces `.clear()` with a real
   `Ctrl+A` + `Delete` keystroke sequence for any field that starts with a server-populated default
   (e.g. Add Employee's suggested next Employee Id).
+- The same empty-shell-before-data race applies to evidence screenshots, not just assertions, and
+  is easy to miss because it doesn't fail the test - `ElementActions.captureEvidence` only calls
+  `waitForVisibility`, so a PASS-evidence capture taken right after an assertion that itself waited
+  correctly can still catch a transient empty re-render if the SPA updates the element again between
+  the assertion and the screenshot (observed live on `PersonalDetailsPage.captureFullNameEvidence()`:
+  a passing test's own evidence PNG showed an empty name field with a loading spinner still visible).
+  The fix is the same pattern as the assertions themselves: `waitForNonEmptyText`/
+  `waitForNonEmptyValue` immediately before the capture, not just relying on an earlier wait's
+  result. Applied wherever a capture follows a fresh SPA navigation with no same-element content
+  check immediately beforehand (`PersonalDetailsPage.captureFullNameEvidence`,
+  `AddCandidatePage.captureSavedCandidateEvidence`,
+  `CandidateDetailsPage.captureResumeAttachmentEvidence`) - captures where the immediately preceding
+  assertion already reads that exact element's content (Employee/User List search results,
+  Dashboard, Login) don't need the extra guard.
 - Headless Chrome's `driver.manage().window().maximize()` has no real display to maximize against
   and silently falls back to a small viewport — which is enough to trip OrangeHRM's
   mobile-responsive breakpoint (collapsed filter panels, card layouts instead of tables).
@@ -108,6 +140,17 @@ tables — Pay Grades and Claims render delete-then-edit, Recruitment Candidates
 view-then-delete. Every such locator resolves the specific action by its icon class
 (`bi-eye-fill`, `bi-trash`, ...), never by button index.
 
+`BasePage.inputForLabel`'s XPath wraps the field label in single quotes
+(`//label[normalize-space()='<label>']/...`), which breaks the moment a label itself contains an
+apostrophe — verified live on Personal Details' "Driver's License Number":
+`normalize-space()='Driver's License Number'` closes the string literal after `Driver`, producing
+an `InvalidSelectorException` (`SyntaxError: ... is not a valid XPath expression`), not a "no such
+element" timeout, so it fails loudly rather than silently. XPath 1.0 has no escape character for a
+quote inside a same-quoted string, so the fix isn't a helper change — that field's locator is
+built directly with a double-quoted literal instead (`PersonalDetailsPageElements.
+driversLicenseNumberInput`), which works because the label itself contains no double quote. Any
+future label containing both quote characters would need `concat()` to build the literal instead.
+
 ## Checkboxes render invisibly
 
 OrangeHRM's checkboxes (bulk row-select, Recruitment's "Consent to keep data") render the real
@@ -134,13 +177,15 @@ Passing tests get visual evidence too, not just a text log line. `ElementActions
 `UserListPage.captureUsernameEvidence()`) takes a full-page screenshot with the specific validated
 element outlined via a temporary inline `style` attribute (never a CSS class, so it can't touch the
 application's own stylesheet, and it's always restored in a `finally` block regardless of outcome),
-then attaches it to that test's ExtentReports entry. This is wired into the five "record now
-genuinely exists in the UI" assertions where a screenshot proves something a text log line alone
-can't - e.g. after Add Employee, the created employee's exact name outlined on Personal Details;
-after Add User, the new username's row outlined in the System Users list. It's deliberately not
-applied to every assertion in the suite - a validation-message check or a boolean state check has
-nothing meaningful to point at with an outline, so evidence capture is reserved for the assertions
-where "here's the actual pixel" is genuinely more convincing than "here's the pass/fail text."
+then attaches it to that test's ExtentReports entry. It's wired into the final validation of every
+test in the suite except `LeaveListTests` (excluded deliberately - that test's assertions read
+genuinely shared, ambient data on the live demo, verified unstable enough that a screenshot of it
+wouldn't reliably prove anything) - e.g. after Add Employee, the created employee's exact name
+outlined on Personal Details; after Add User, the new username's row outlined in the System Users
+list. Within a test, it's reserved for the assertion where "here's the actual pixel" is genuinely
+more convincing than "here's the pass/fail text" - a validation-message check or a boolean state
+check still gets one (outlining the message/control itself), but a capture is never bolted onto an
+assertion with nothing meaningful to point at.
 
 ## Data-driven testing
 
@@ -161,6 +206,36 @@ test only reads back its own freshly-created record with no name search involved
 (`AddEmployeeTests`, `RecruitmentTests`), the pair is used exactly as-is. `generateUsername`
 follows the same real-account convention for login usernames - three letters of the first name,
 three of the last, a 3-digit number (e.g. `"lucben482"`) - rather than a raw prefix+digits string.
+The same class also generates plausible values for Personal Details' other fields
+(`randomDateOfBirth`/`randomLicenseExpiryDate` in the `yyyy-dd-mm` format that field actually
+expects - verified live, day before month, not the usual `yyyy-mm-dd` - plus `randomGender`,
+`randomMaritalStatus`, `randomBloodType`, `randomDriversLicenseNumber`), so data-driven runs don't
+repeat the same fixed values every time.
+
+## Composite fill methods
+
+Every "fill this whole form and submit" positive-path flow is exposed as a single composite method
+on its page object rather than requiring the caller to chain every individual field setter itself:
+`AddEmployeePage.save(firstName, lastName, employeeId)`, `AddUserPage.addUser(role,
+employeeNameSearchText, status, username, password)`, `AddCandidatePage.addCandidateWithResume
+(firstName, lastName, email, resumeAbsolutePath)`, and `PersonalDetailsPage.fillAdditionalDetails
+(driversLicenseNumber, licenseExpiryDateYyyyDdMm, nationality, maritalStatus,
+dateOfBirthYyyyDdMm, gender, bloodType, testField)`. Each composite method still calls the same
+individual, independently-usable setter methods internally (`enterFirstName`, `selectNationality`,
+...) - the composite is a convenience wrapper for the common case, not a replacement for the
+building blocks, so a test that needs to exercise just one field (e.g. a validation test) still
+can. Negative-path tests that need field values a composite method's signature can't express (e.g.
+`AdminUserTests.addUserWithMismatchedPasswordsIsBlocked`, which needs two *different* password
+values where `addUser()` takes one for both) are left calling the individual setters directly
+rather than growing the composite method's signature or adding a second composite for a single
+caller.
+
+`PersonalDetailsPage.fillAdditionalDetails` in particular saves through **two independent forms**
+on the same page, verified live: Driver's License/Nationality/Marital Status/Date of Birth/Gender
+sit in one `<form>` with its own Save button, while Blood Type/Test_Field (under a separate "Custom
+Fields" heading) sit in a second, independent `<form>` with a second Save button of identical
+markup - each scoped by an XPath anchored to a label unique to its own form, since
+`button[type=submit]` alone matches both. The composite method calls both Saves in sequence.
 
 ## Extensibility
 
@@ -197,6 +272,11 @@ overrides) are supported by the existing `ThreadLocal` driver/asserts pattern an
   root cause found while building this suite was fixed properly instead of masked (see the
   wait-strategy section above). Every other test method in the suite still runs with no retry —
   a genuine failure there surfaces as a failure, on the first attempt.
-- `utils.TestDataUtils`'s uniqueness scheme (`System.currentTimeMillis()`-derived suffix) is
-  sufficient for this suite's execution pattern (tests run seconds apart, never in true parallel
-  yet) but would need a stronger scheme (e.g. `UUID`-based) if parallel execution is turned on.
+- `utils.TestDataUtils`'s uniqueness scheme (`System.nanoTime()`-derived suffix) is sufficient for
+  this suite's execution pattern (tests run seconds apart, never in true parallel yet) but would
+  need a stronger scheme (e.g. `UUID`-based) if parallel execution is turned on. This was originally
+  `System.currentTimeMillis()`-derived; switched to `nanoTime()` after a live-observed bug: Windows'
+  timer resolution is coarse (~15ms), so two `uniqueSuffix()` calls microseconds apart in the same
+  test method (e.g. one for an Employee Id, one for a last name) could return the exact same
+  millisecond and therefore the identical suffix, defeating the point of generating them
+  independently. `nanoTime()`'s much finer resolution keeps back-to-back calls independent.

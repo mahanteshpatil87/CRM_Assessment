@@ -2,6 +2,7 @@ package com.crmassessment.utils;
 
 import com.crmassessment.config.ConfigReader;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,9 +23,17 @@ public class TestDataUtils {
         // Utility class - no instances
     }
 
-    /** A short, time-based value unlikely to collide with concurrent test runs. */
+    /**
+     * A short, time-based value unlikely to collide with concurrent test
+     * runs. Uses nanoTime() rather than currentTimeMillis(): Windows' timer
+     * resolution is coarse (~15ms), so two calls microseconds apart (e.g.
+     * one for an Employee Id, one for a last name, in the same test method)
+     * can return the exact same millisecond and therefore the same suffix -
+     * verified live. nanoTime()'s much finer resolution keeps back-to-back
+     * calls independent.
+     */
     public static String uniqueSuffix() {
-        return Long.toString(System.currentTimeMillis()).substring(5);
+        return String.format("%05d", Math.abs(System.nanoTime()) % 100_000);
     }
 
     public static String uniqueValue(String prefix) {
@@ -74,5 +83,44 @@ public class TestDataUtils {
     private static String firstLetters(String value, int count) {
         String lettersOnly = value.replaceAll("[^A-Za-z]", "");
         return lettersOnly.substring(0, Math.min(count, lettersOnly.length()));
+    }
+
+    private static final String[] MARITAL_STATUSES = {"Single", "Married"};
+    private static final String[] GENDERS = {"Male", "Female"};
+    private static final String[] BLOOD_TYPES = {"A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"};
+
+    public static String randomMaritalStatus() {
+        return MARITAL_STATUSES[ThreadLocalRandom.current().nextInt(MARITAL_STATUSES.length)];
+    }
+
+    public static String randomGender() {
+        return GENDERS[ThreadLocalRandom.current().nextInt(GENDERS.length)];
+    }
+
+    public static String randomBloodType() {
+        return BLOOD_TYPES[ThreadLocalRandom.current().nextInt(BLOOD_TYPES.length)];
+    }
+
+    public static String randomDriversLicenseNumber() {
+        return String.valueOf(ThreadLocalRandom.current().nextInt(10_000_000, 100_000_000));
+    }
+
+    /**
+     * A random past Date of Birth (22-58 years old), in the "yyyy-dd-mm"
+     * format OrangeHRM's own field expects - verified live: day before
+     * month, not the usual yyyy-mm-dd.
+     */
+    public static String randomDateOfBirth() {
+        int age = ThreadLocalRandom.current().nextInt(22, 59);
+        return formatYyyyDdMm(LocalDate.now().minusYears(age).minusDays(ThreadLocalRandom.current().nextInt(365)));
+    }
+
+    /** A random future License Expiry Date (1-5 years out), same yyyy-dd-mm format as Date of Birth. */
+    public static String randomLicenseExpiryDate() {
+        return formatYyyyDdMm(LocalDate.now().plusYears(ThreadLocalRandom.current().nextInt(1, 6)));
+    }
+
+    private static String formatYyyyDdMm(LocalDate date) {
+        return String.format("%04d-%02d-%02d", date.getYear(), date.getDayOfMonth(), date.getMonthValue());
     }
 }

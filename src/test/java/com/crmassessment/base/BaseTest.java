@@ -3,6 +3,7 @@ package com.crmassessment.base;
 import com.crmassessment.assertion.AssertsManager;
 import com.crmassessment.config.ConfigReader;
 import com.crmassessment.driver.DriverManager;
+import com.crmassessment.pages.AllPages;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -15,11 +16,15 @@ import org.testng.annotations.BeforeMethod;
  */
 public abstract class BaseTest {
 
+    /** Every page object for this test, built once the driver is ready - see AllPages. */
+    protected AllPages pages;
+
     @BeforeMethod(alwaysRun = true)
     public void setUp() {
         DriverManager.initDriver();
         AssertsManager.initAsserts();
         DriverManager.getDriver().get(ConfigReader.getBaseUrl());
+        pages = new AllPages(DriverManager.getDriver());
     }
 
     @AfterMethod(alwaysRun = true)
