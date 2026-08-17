@@ -21,8 +21,12 @@ public class CandidateResumeEndToEndTests extends AuthenticatedBaseTest {
     @Test(description = "TC-REC-005: End-to-end - create a candidate with an uploaded resume, find them by search, "
             + "and confirm the resume can be downloaded intact from their detail page")
     public void candidateResumeCanBeUploadedFoundAndDownloaded() {
-        String firstName = TestDataUtils.uniqueValue("AutoQaE2E");
-        String lastName = "TestUser";
+        // The searched name must stay unique against the shared demo's other
+        // candidates (same reasoning as EmployeeListTests) - carried on the
+        // last name only, so the first name still reads as a real one.
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = TestDataUtils.uniqueValue(name[1]);
         String email = TestDataUtils.uniqueEmail("autoqae2e");
         File originalResume = new File(ConfigReader.getValidResumeFilePath());
         FileUtils.clearDirectory(ConfigReader.getDownloadDir());
@@ -45,11 +49,11 @@ public class CandidateResumeEndToEndTests extends AuthenticatedBaseTest {
         // 2. Find the candidate via search
         CandidateListPage listAfterCreate = new CandidateListPage(DriverManager.getDriver());
         listAfterCreate.open();
-        listAfterCreate.searchByCandidateName(firstName);
+        listAfterCreate.searchByCandidateName(lastName);
 
         AssertsManager.getAsserts().assertEquals(
                 listAfterCreate.getResultRowCount(), 1,
-                "Searching by the newly created candidate's unique name should return exactly one row", AssertionType.HARD);
+                "Searching by the newly created candidate's unique last name should return exactly one row", AssertionType.HARD);
 
         // 3. Open their detail page and confirm the resume attachment is present
         CandidateDetailsPage detailsPage = listAfterCreate.openFirstResult();

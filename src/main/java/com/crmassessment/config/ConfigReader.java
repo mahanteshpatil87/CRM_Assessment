@@ -103,4 +103,8 @@ public class ConfigReader {
     public static String getEmployeeTestDataFile() {
         return get("employeeTestDataFile");
     }
+
+    public static String getEmployeeNamesFile() {
+        return get("employeeNamesFile");
+    }
 }

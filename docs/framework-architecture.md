@@ -150,6 +150,18 @@ maps via Apache POI. `testdata.TestDataProvider` exposes this as a TestNG `@Data
 `utils.TestDataUtils.uniqueValue` appends a timestamp-derived suffix at runtime so the same
 spreadsheet can be replayed indefinitely against the shared demo without id/name collisions.
 
+`utils.TestDataUtils.randomNamePair` uses the same Excel-backed pattern for every other test that
+needs a person's name: it reads `test-data/excel/employeeNames.xlsx` (sheet `EmployeeNames`,
+columns `firstName`/`lastName`) and returns a random real-looking pair (e.g. `"Lucas", "Bennett"`)
+instead of a synthetic `"AutoQaEmp784512"`-style string. Where a test's own correctness needs the
+searched name to be unique against the shared demo's other records (`EmployeeListTests`,
+`AdminUserTests`, `CandidateResumeEndToEndTests`), the uniqueness suffix is applied to the last
+name only (`TestDataUtils.uniqueValue(name[1])`), so the first name always stays clean; where a
+test only reads back its own freshly-created record with no name search involved
+(`AddEmployeeTests`, `RecruitmentTests`), the pair is used exactly as-is. `generateUsername`
+follows the same real-account convention for login usernames - three letters of the first name,
+three of the last, a 3-digit number (e.g. `"lucben482"`) - rather than a raw prefix+digits string.
+
 ## Extensibility
 
 To add a new page:

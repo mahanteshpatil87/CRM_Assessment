@@ -16,8 +16,12 @@ public class RecruitmentTests extends AuthenticatedBaseTest {
 
     @Test(description = "TC-REC-001: Adding a candidate with a valid resume upload succeeds")
     public void addCandidateWithValidResumeSucceeds() {
-        String firstName = TestDataUtils.uniqueValue("AutoQaCand");
-        String lastName = "TestUser";
+        // No search is involved in this test (only a URL-based save check),
+        // so unlike CandidateResumeEndToEndTests, the name never needs to be
+        // unique - a plain real-looking name is enough.
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = name[1];
         String email = TestDataUtils.uniqueEmail("autoqacand");
         String resumePath = new File(ConfigReader.getValidResumeFilePath()).getAbsolutePath();
 
@@ -39,8 +43,9 @@ public class RecruitmentTests extends AuthenticatedBaseTest {
 
     @Test(description = "TC-REC-002: Uploading a resume file outside the accepted types is rejected")
     public void addCandidateWithInvalidResumeTypeIsRejected() {
-        String firstName = TestDataUtils.uniqueValue("AutoQaCandBad");
-        String lastName = "TestUser";
+        String[] name = TestDataUtils.randomNamePair();
+        String firstName = name[0];
+        String lastName = name[1];
         String email = TestDataUtils.uniqueEmail("autoqacandbad");
         String invalidResumePath = new File(ConfigReader.getInvalidResumeFilePath()).getAbsolutePath();
 

@@ -19,9 +19,12 @@ public class DataDrivenEmployeeTests extends AuthenticatedBaseTest {
             description = "TC-PIM-013: Each employee row from the Excel test-data source is created and lands correctly in Employee List",
             retryAnalyzer = RetryAnalyzer.class)
     public void employeeFromExcelRowIsCreatedSuccessfully(EmployeeTestData employeeTestData) {
-        // The Excel row supplies base names; a unique suffix is appended per run
-        // so the same spreadsheet can be replayed without id/name collisions.
-        String firstName = TestDataUtils.uniqueValue(employeeTestData.firstName());
+        // This test only reads back the record it just created (direct
+        // navigation to its own Personal Details page, not a name search),
+        // so the Excel row's name is used exactly as-is - the same
+        // spreadsheet can be replayed indefinitely regardless, since it's
+        // Employee Id (below) that the app actually requires to be unique.
+        String firstName = employeeTestData.firstName();
         String employeeId = TestDataUtils.uniqueValue("QA");
 
         EmployeeListPage employeeListPage = new EmployeeListPage(DriverManager.getDriver());
