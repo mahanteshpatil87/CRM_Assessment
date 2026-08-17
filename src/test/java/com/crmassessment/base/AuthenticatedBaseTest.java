@@ -1,22 +1,27 @@
 package com.crmassessment.base;
 
 import com.crmassessment.config.ConfigReader;
-import com.crmassessment.driver.DriverManager;
-import com.crmassessment.pages.admin.AdminLoginPage;
 import org.testng.annotations.BeforeMethod;
 
 /**
  * Base for every test that needs an authenticated session before it starts
  * (i.e. everything except AdminLoginTests, which tests login itself).
  * TestNG runs superclass @BeforeMethod methods (BaseTest.setUp - driver
- * init + navigation to the login page) before this subclass's, so the
- * driver is always ready before loginAsAdmin runs.
+ * init, navigation to the login page, and building `pages`) before this
+ * subclass's, so both the driver and `pages` are ready before loginAsAdmin runs.
+ * <p>
+ * Deliberately NOT alwaysRun: unlike BaseTest.tearDown() (a cleanup step
+ * that must always attempt to run), this is a setup step that depends on
+ * BaseTest.setUp() having already succeeded (driver ready, `pages` built).
+ * If setUp() fails, TestNG correctly skips this method and the test
+ * itself rather than this throwing a confusing secondary NullPointerException
+ * on a null `pages` that masks the real, original failure.
  */
 public abstract class AuthenticatedBaseTest extends BaseTest {
 
-    @BeforeMethod(alwaysRun = true)
+    @BeforeMethod
     public void loginAsAdmin() {
-        new AdminLoginPage(DriverManager.getDriver())
+        pages.adminLoginPage
                 .loginAs(ConfigReader.getAdminUsername(), ConfigReader.getAdminPassword());
     }
 }

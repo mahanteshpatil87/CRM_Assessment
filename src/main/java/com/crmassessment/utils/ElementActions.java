@@ -77,6 +77,13 @@ public class ElementActions {
         ScreenshotUtils.captureHighlightedAndAttach(driver, element, description);
     }
 
+
+    /** Same as captureEvidence, but for the Nth match of a repeated locator (e.g. one specific row's checkbox). */
+    public void captureNthEvidence(By locator, int index, String description) {
+        WebElement element = waitUtils.waitForNthVisible(locator, index);
+        ScreenshotUtils.captureHighlightedAndAttach(driver, element, description);
+    }
+
     public boolean isDisplayed(By locator) {
         try {
             return waitUtils.waitForVisibility(locator).isDisplayed();
@@ -160,11 +167,19 @@ public class ElementActions {
      * per-row id/name to target individually - only DOM order.
      */
     public void clickNth(By locator, int index) {
-        waitUtils.waitForAllVisible(locator).get(index).click();
+        waitUtils.waitForNthVisible(locator, index).click();
     }
 
     public boolean isNthSelected(By locator, int index) {
         return waitUtils.waitForAllPresence(locator).get(index).isSelected();
+    }
+
+    public boolean waitForNthSelected(By locator, int index, boolean expectedSelected) {
+        return waitUtils.waitForNthSelected(locator, index, expectedSelected);
+    }
+
+    public boolean waitForNthSelected(By locator, int index, boolean expectedSelected, java.time.Duration timeout) {
+        return waitUtils.waitForNthSelected(locator, index, expectedSelected, timeout);
     }
 
     public boolean waitForUrlMatches(String regex) {
@@ -215,16 +230,31 @@ public class ElementActions {
      * rather than treating it as a failure to wait out - the caller's own
      * "every row matches X" assertion is vacuously true over an empty list,
      * so failing here would reject a valid result for the wrong reason.
+     * <p>
+     * Retries on a stale element rather than letting it propagate: the
+     * element list is fetched once, then read one at a time, and a results
+     * table can re-render between that fetch and a later element's read
+     * (verified live: this raced against Employee List's status-filter
+     * results). A staleness mid-read means the whole snapshot is now
+     * meaningless, not just the one element - re-fetching the full list
+     * fresh and starting over is the only safe recovery.
      */
     public List<String> getTextsOf(By locator) {
-        List<String> texts = new java.util.ArrayList<>();
-        try {
-            for (WebElement element : waitUtils.waitForAllVisible(locator)) {
-                texts.add(element.getText());
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                List<String> texts = new java.util.ArrayList<>();
+                for (WebElement element : waitUtils.waitForAllVisible(locator)) {
+                    texts.add(element.getText());
+                }
+                return texts;
+            } catch (org.openqa.selenium.TimeoutException e) {
+                // no matches ever appeared - genuinely zero rows, not a loading race
+                return new java.util.ArrayList<>();
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                // fall through and retry with a fresh fetch
             }
-        } catch (org.openqa.selenium.TimeoutException e) {
-            // no matches ever appeared - genuinely zero rows, not a loading race
         }
-        return texts;
+        throw new org.openqa.selenium.StaleElementReferenceException(
+                "Elements for " + locator + " kept going stale across retries");
     }
 }

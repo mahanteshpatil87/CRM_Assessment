@@ -24,11 +24,12 @@ public class EmployeeListPage extends EmployeeListPageElements {
         this.bulkCheckbox = new BulkCheckboxComponent(driver);
     }
 
-    public void open() {
+    public EmployeeListPage open() {
         navigateTo(ConfigReader.getAppHost() + ROUTE);
+        return this;
     }
 
-    public void searchByEmployeeName(String name) {
+    public EmployeeListPage searchByEmployeeName(String name) {
         autocomplete.selectFirstSuggestion("Employee Name", name);
         click(searchButton);
         // getResultRowCount() below has no wait of its own (a legitimate
@@ -41,24 +42,28 @@ public class EmployeeListPage extends EmployeeListPageElements {
         // different runs). Waiting for the first row to actually contain
         // the searched name ties the wait to the real post-search state.
         waitForTextToBePresent(tableRows, name);
+        return this;
     }
 
-    public void typeEmployeeName(String name) {
+    public EmployeeListPage typeEmployeeName(String name) {
         autocomplete.type("Employee Name", name);
+        return this;
     }
 
     public boolean isNoMatchingEmployeeSuggested() {
         return autocomplete.isShowingNoRecordsFound();
     }
 
-    public void filterByEmploymentStatus(String status) {
+    public EmployeeListPage filterByEmploymentStatus(String status) {
         dropdown.selectByLabel("Employment Status", status);
         click(searchButton);
         waitForFormLoaderToDisappear();
+        return this;
     }
 
-    public void clickReset() {
+    public EmployeeListPage clickReset() {
         click(resetButton);
+        return this;
     }
 
     public int getResultRowCount() {
@@ -69,29 +74,38 @@ public class EmployeeListPage extends EmployeeListPageElements {
         return getTextsOf(employmentStatusColumn);
     }
 
+    /** PASS-evidence for "the Employment Status filter actually narrowed the results" - attaches a screenshot with a matching status cell outlined. */
+    public EmployeeListPage captureEmploymentStatusEvidence() {
+        captureEvidence(employmentStatusColumn, "Filtered Employment Status column visible in Employee List");
+        return this;
+    }
+
     public List<String> getFirstNameColumnValues() {
         return getTextsOf(firstNameColumn);
     }
 
     /** PASS-evidence for "the searched employee actually appears in the results" - attaches a screenshot with the name row outlined. */
-    public void captureFirstNameEvidence() {
+    public EmployeeListPage captureFirstNameEvidence() {
         captureEvidence(firstNameColumn, "Newly created employee visible in Employee List search results");
+        return this;
     }
 
     public List<String> getLastNameColumnValues() {
         return getTextsOf(lastNameColumn);
     }
 
-    public void selectAllRows() {
+    public EmployeeListPage selectAllRows() {
         bulkCheckbox.selectAllRows();
+        return this;
     }
 
     public boolean isHeaderCheckboxChecked() {
         return bulkCheckbox.isHeaderChecked();
     }
 
-    public void toggleRow(int rowIndex) {
+    public EmployeeListPage toggleRow(int rowIndex) {
         bulkCheckbox.toggleRow(rowIndex);
+        return this;
     }
 
     public boolean isRowChecked(int rowIndex) {
@@ -100,6 +114,12 @@ public class EmployeeListPage extends EmployeeListPageElements {
 
     public int getVisibleRowCount() {
         return bulkCheckbox.getVisibleRowCount();
+    }
+
+    /** PASS-evidence for "this specific row's checkbox is in the expected state" - attaches a screenshot with that row's checkbox outlined. */
+    public EmployeeListPage captureRowCheckboxEvidence(int rowIndex, String description) {
+        bulkCheckbox.captureRowEvidence(rowIndex, description);
+        return this;
     }
 
     public AddEmployeePage clickAdd() {

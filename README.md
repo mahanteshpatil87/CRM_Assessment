@@ -131,7 +131,10 @@ on every failure (`screenshots/Failure_<timestamp>.png`).
 
 ## Automation status
 
-15 automated test cases (19 executions counting the 5 data-driven rows as separate runs). See
+15 automated test cases (19 executions counting the 5 data-driven rows as separate runs), covering
+Login/Logout, Employee List, Add Employee (including a full Personal Details fill — Driver's
+License, Nationality, Marital Status, Date of Birth, Gender, Blood Type), Add User, Leave List,
+Add Candidate, and an end-to-end resume upload/search/download workflow. See
 [docs/test-strategy.md](docs/test-strategy.md) for the full manual/automated breakdown and known
 limitations of testing against a public, shared demo environment, including the small set of tests
 that carry a bounded retry for observed live-network flakiness.

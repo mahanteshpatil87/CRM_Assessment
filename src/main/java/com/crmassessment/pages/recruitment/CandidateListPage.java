@@ -18,11 +18,12 @@ public class CandidateListPage extends CandidateListPageElements {
         this.autocomplete = new AutocompleteComponent(driver);
     }
 
-    public void open() {
+    public CandidateListPage open() {
         navigateTo(ConfigReader.getAppHost() + ROUTE);
+        return this;
     }
 
-    public void searchByCandidateName(String name) {
+    public CandidateListPage searchByCandidateName(String name) {
         autocomplete.selectFirstSuggestion("Candidate Name", name);
         click(searchButton);
         // The form loader alone is not a reliable "results re-rendered"
@@ -30,6 +31,7 @@ public class CandidateListPage extends CandidateListPageElements {
         // full explanation) - wait for the actual searched value to appear
         // in the results instead.
         waitForTextToBePresent(candidateNameColumn, name);
+        return this;
     }
 
     public int getResultRowCount() {

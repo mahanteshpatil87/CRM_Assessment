@@ -14,11 +14,12 @@ public class UserListPage extends UserListPageElements {
         super(driver);
     }
 
-    public void open() {
+    public UserListPage open() {
         navigateTo(ConfigReader.getAppHost() + ROUTE);
+        return this;
     }
 
-    public void searchByUsername(String username) {
+    public UserListPage searchByUsername(String username) {
         type(usernameFilterInput, username);
         click(searchButton);
         // The form loader alone is not a reliable "results re-rendered"
@@ -26,6 +27,7 @@ public class UserListPage extends UserListPageElements {
         // full explanation) - wait for the actual searched value to appear
         // in the results instead.
         waitForTextToBePresent(usernameColumn, username);
+        return this;
     }
 
     public List<String> getUsernameColumnValues() {
@@ -33,8 +35,9 @@ public class UserListPage extends UserListPageElements {
     }
 
     /** PASS-evidence for "the new user actually appears in the list" - attaches a screenshot with the username row outlined. */
-    public void captureUsernameEvidence() {
+    public UserListPage captureUsernameEvidence() {
         captureEvidence(usernameColumn, "Newly created username visible in System Users list");
+        return this;
     }
 
     public AddUserPage clickAdd() {

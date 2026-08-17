@@ -8,10 +8,9 @@ import org.openqa.selenium.WebDriver;
  * ThreadLocal is used (not a plain static field) so that if TestNG is later
  * configured for parallel execution (parallel="methods" in testng.xml),
  * each thread gets its own isolated WebDriver instance - no two tests
- * running concurrently can ever share or collide on the same browser session.
- * This costs nothing today (single-threaded runs work identically) and
- * removes a whole class of flaky-parallel-test bugs later.
+ * running concurrently can ever share or collide in same browser session.
  */
+
 public class DriverManager {
 
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();

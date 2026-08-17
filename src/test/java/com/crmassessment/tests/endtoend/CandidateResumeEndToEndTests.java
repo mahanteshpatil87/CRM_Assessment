@@ -4,10 +4,6 @@ import com.crmassessment.assertion.AssertionType;
 import com.crmassessment.assertion.AssertsManager;
 import com.crmassessment.base.AuthenticatedBaseTest;
 import com.crmassessment.config.ConfigReader;
-import com.crmassessment.driver.DriverManager;
-import com.crmassessment.pages.recruitment.AddCandidatePage;
-import com.crmassessment.pages.recruitment.CandidateDetailsPage;
-import com.crmassessment.pages.recruitment.CandidateListPage;
 import com.crmassessment.utils.FileUtils;
 import com.crmassessment.utils.TestDataUtils;
 import org.testng.annotations.Test;
@@ -32,38 +28,45 @@ public class CandidateResumeEndToEndTests extends AuthenticatedBaseTest {
         FileUtils.clearDirectory(ConfigReader.getDownloadDir());
 
         // 1. Create the candidate with an uploaded resume
-        CandidateListPage candidateListPage = new CandidateListPage(DriverManager.getDriver());
-        candidateListPage.open();
-        AddCandidatePage addCandidatePage = candidateListPage.clickAdd();
-        addCandidatePage.enterFirstName(firstName);
-        addCandidatePage.enterLastName(lastName);
-        addCandidatePage.enterEmail(email);
-        addCandidatePage.uploadResume(originalResume.getAbsolutePath());
-        addCandidatePage.checkConsent();
-        addCandidatePage.clickSave();
+        pages.candidateListPage
+                .open();
+
+        pages.candidateListPage
+                .clickAdd();
+
+        pages.addCandidatePage
+                .addCandidateWithResume(firstName, lastName, email, originalResume.getAbsolutePath());
 
         AssertsManager.getAsserts().assertTrue(
-                addCandidatePage.isSavedSuccessfully(),
+                pages.addCandidatePage.isSavedSuccessfully(),
                 "Candidate creation with a resume upload should succeed before continuing the workflow", AssertionType.HARD);
 
         // 2. Find the candidate via search
-        CandidateListPage listAfterCreate = new CandidateListPage(DriverManager.getDriver());
-        listAfterCreate.open();
-        listAfterCreate.searchByCandidateName(lastName);
+        pages.candidateListPage
+                .open();
+
+        pages.candidateListPage
+                .searchByCandidateName(lastName);
 
         AssertsManager.getAsserts().assertEquals(
-                listAfterCreate.getResultRowCount(), 1,
+                pages.candidateListPage.getResultRowCount(), 1,
                 "Searching by the newly created candidate's unique last name should return exactly one row", AssertionType.HARD);
 
         // 3. Open their detail page and confirm the resume attachment is present
-        CandidateDetailsPage detailsPage = listAfterCreate.openFirstResult();
+        pages.candidateListPage
+                .openFirstResult();
+
         AssertsManager.getAsserts().assertTrue(
-                detailsPage.hasResumeAttachment(),
+                pages.candidateDetailsPage.hasResumeAttachment(),
                 "The candidate's detail page should show the previously uploaded resume attachment", AssertionType.HARD);
-        detailsPage.captureResumeAttachmentEvidence();
+
+        pages.candidateDetailsPage
+                .captureResumeAttachmentEvidence();
 
         // 4. Download it and verify the downloaded file matches the original
-        detailsPage.downloadResume();
+        pages.candidateDetailsPage
+                .downloadResume();
+
         Optional<Path> downloaded = FileUtils.waitForDownloadedFile(
                 ConfigReader.getDownloadDir(), originalResume.getName(), 15);
 

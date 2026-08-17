@@ -19,7 +19,7 @@ directly verified in the live application; nothing was invented or assumed.
 | Module | What's exercised |
 |---|---|
 | Admin / Authentication | Login (valid/invalid), logout, session invalidation |
-| PIM | Employee List (search, filter, bulk row-select), Add Employee (happy path + validation), data-driven employee creation |
+| PIM | Employee List (search, filter, bulk row-select), Add Employee (happy path + validation), Personal Details (Driver's License Number, License Expiry Date, Nationality, Marital Status, Date of Birth, Gender, and the separate Custom Fields form's Blood Type/Test_Field), data-driven employee creation |
 | Admin / User Management | Add System User (happy path + password-mismatch validation) |
 | Leave | Leave List filtering (Leave Type + Status) |
 | Recruitment | Add Candidate (valid + invalid resume upload), full E2E: create candidate with resume → search → open detail → download → verify byte-identical |
@@ -53,6 +53,15 @@ case → expected behavior → test method → page object → implementation �
   (assignment explicitly warns against automating trivial variations for their own sake).
 - **1 test case (TC-PIM-012)** is scoped and documented but not yet implemented — attaching a file
   to an existing employee's Personal Details tab.
+- **TC-PIM-006 and TC-PIM-013 were later deepened**, not just left at the mandatory name fields:
+  both now also fill and verify Personal Details' Driver's License Number, License Expiry Date,
+  Nationality, Marital Status, Date of Birth, Gender, and the separate Custom Fields form's Blood
+  Type/Test_Field — fields the Add Employee quick-create form itself doesn't expose. This overlaps
+  with TC-PIM-011 (Nationality/Marital Status persistence, still Manual Only): TC-PIM-011 is
+  specifically about editing an *existing* record and confirming persistence via a page reload,
+  which the automated flow doesn't do — it fills a *newly created* employee's Personal Details and
+  reads the value back immediately after save, so the two remain distinct, cross-referenced test
+  cases rather than one superseding the other.
 
 See [docs/requirement-traceability.xlsx](requirement-traceability.xlsx) for the full requirement →
 test case mapping (generated directly from the manual test case sheet, so the two can't drift out

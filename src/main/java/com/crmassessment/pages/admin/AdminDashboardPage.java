@@ -22,4 +22,10 @@ public class AdminDashboardPage extends AdminDashboardPageElements {
         click(logoutLink);
         return new AdminLoginPage(driver);
     }
+
+    /** PASS-evidence for "the dashboard genuinely loaded after login" - attaches a screenshot with the breadcrumb header outlined. */
+    public AdminDashboardPage captureDashboardEvidence() {
+        captureEvidence(breadcrumbHeader, "Dashboard breadcrumb visible after a valid login");
+        return this;
+    }
 }

@@ -16,56 +16,62 @@ public class AddCandidatePage extends AddCandidatePageElements {
         this.fileUpload = new FileUploadComponent(driver);
     }
 
-    public void enterFirstName(String firstName) {
+    public AddCandidatePage enterFirstName(String firstName) {
         type(firstNameInput, firstName);
+        return this;
     }
 
-    public void enterLastName(String lastName) {
+    public AddCandidatePage enterLastName(String lastName) {
         type(lastNameInput, lastName);
+        return this;
     }
 
-    public void enterEmail(String email) {
+    public AddCandidatePage enterEmail(String email) {
         type(emailInput, email);
+        return this;
     }
 
-    public void enterContactNumber(String contactNumber) {
+    public AddCandidatePage enterContactNumber(String contactNumber) {
         type(contactNumberInput, contactNumber);
+        return this;
     }
 
-    public void selectVacancy(String vacancyName) {
+    public AddCandidatePage selectVacancy(String vacancyName) {
         dropdown.selectByLabel("Vacancy", vacancyName);
+        return this;
     }
 
-    public void uploadResume(String absoluteFilePath) {
+    public AddCandidatePage uploadResume(String absoluteFilePath) {
         fileUpload.uploadByLabel("Resume", absoluteFilePath);
+        return this;
     }
 
-    public void checkConsent() {
+    public AddCandidatePage checkConsent() {
         setCheckbox(consentCheckbox, true);
+        return this;
     }
 
-    public void clickSave() {
+    public AddCandidatePage clickSave() {
         click(saveButton);
+        return this;
     }
 
-    /** Mandatory fields verified on the live app: First Name, Last Name, Email. */
-    public void addCandidateMinimal(String firstName, String lastName, String email) {
+    /**
+     * Fills every field a candidate-with-resume test needs and saves in one
+     * call: mandatory fields (First Name, Last Name, Email, verified on the
+     * live app) plus the resume upload and consent checkbox. Covers every
+     * "add a candidate with a resume" test in the suite, whether the save
+     * is expected to succeed or be rejected (e.g. an invalid file type) -
+     * checking consent doesn't affect that outcome either way.
+     */
+    public AddCandidatePage addCandidateWithResume(String firstName, String lastName, String email, String resumeAbsolutePath) {
         enterFirstName(firstName);
         enterLastName(lastName);
         enterEmail(email);
-        clickSave();
-    }
-
-    public void addCandidateFull(String firstName, String lastName, String email, String contactNumber,
-                                  String vacancyName, String resumeAbsolutePath) {
-        enterFirstName(firstName);
-        enterLastName(lastName);
-        enterEmail(email);
-        enterContactNumber(contactNumber);
-        selectVacancy(vacancyName);
         uploadResume(resumeAbsolutePath);
         checkConsent();
         clickSave();
+        return this;
     }
 
     public int getValidationMessageCount() {
@@ -81,5 +87,18 @@ public class AddCandidatePage extends AddCandidatePageElements {
      */
     public boolean isSavedSuccessfully() {
         return waitForUrlMatches(".*/addCandidate/\\d+$");
+    }
+
+    /** PASS-evidence for "the candidate was actually saved" - attaches a screenshot with the (now-saved) first name field outlined. */
+    public AddCandidatePage captureSavedCandidateEvidence() {
+        waitForNonEmptyValue(firstNameInput);
+        captureEvidence(firstNameInput, "Saved candidate's name visible after Add Candidate succeeds");
+        return this;
+    }
+
+    /** PASS-evidence for "the rejected save left us on the same form" - attaches a screenshot with the Save button still present. */
+    public AddCandidatePage captureStillOnFormEvidence() {
+        captureEvidence(saveButton, "Add Candidate form still shown - the rejected save did not navigate away");
+        return this;
     }
 }

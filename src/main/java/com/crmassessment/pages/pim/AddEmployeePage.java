@@ -9,12 +9,14 @@ public class AddEmployeePage extends AddEmployeePageElements {
         super(driver);
     }
 
-    public void enterFirstName(String firstName) {
+    public AddEmployeePage enterFirstName(String firstName) {
         type(firstNameInput, firstName);
+        return this;
     }
 
-    public void enterLastName(String lastName) {
+    public AddEmployeePage enterLastName(String lastName) {
         type(lastNameInput, lastName);
+        return this;
     }
 
     /**
@@ -24,11 +26,12 @@ public class AddEmployeePage extends AddEmployeePageElements {
      * already exists"). Callers should always pass their own unique id
      * rather than relying on the pre-filled default.
      */
-    public void enterEmployeeId(String employeeId) {
+    public AddEmployeePage enterEmployeeId(String employeeId) {
         typeOverAutoPopulatedValue(employeeIdInput, employeeId);
+        return this;
     }
 
-    public void clickSave() {
+    public AddEmployeePage clickSave() {
         // The page's own initial async setup (employee-id suggestion, photo
         // config, dropdown data) can still be in flight if Save is clicked
         // immediately after navigating here without any prior interaction
@@ -40,6 +43,7 @@ public class AddEmployeePage extends AddEmployeePageElements {
         waitForNonEmptyValue(employeeIdInput);
         waitForFormLoaderToDisappear();
         click(saveButton);
+        return this;
     }
 
     public PersonalDetailsPage save(String firstName, String lastName, String uniqueEmployeeId) {
@@ -62,5 +66,11 @@ public class AddEmployeePage extends AddEmployeePageElements {
 
     public boolean isStillOnAddEmployeePage() {
         return driver.getCurrentUrl().contains("addEmployee");
+    }
+
+    /** PASS-evidence for "the blank-field validation actually appears" - attaches a screenshot with the message outlined. */
+    public AddEmployeePage captureValidationEvidence() {
+        captureEvidence(validationMessages, "Required-field validation visible on Add Employee");
+        return this;
     }
 }

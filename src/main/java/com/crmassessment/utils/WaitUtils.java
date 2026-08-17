@@ -30,6 +30,7 @@ public class WaitUtils {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
+
     public WebElement waitForClickability(By locator) {
         return wait.until(ExpectedConditions.elementToBeClickable(locator));
     }
@@ -54,6 +55,32 @@ public class WaitUtils {
 
     public List<WebElement> waitForAllVisible(By locator) {
         return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+    }
+
+    /**
+     * Waits until the Nth match of a repeated locator is visible, and
+     * returns it - unlike waitForAllVisible, this doesn't require every
+     * match in the collection to be simultaneously visible, only the one
+     * actually needed. Requiring the whole collection is needlessly
+     * fragile when the match count can shift for reasons unrelated to the
+     * specific element being acted on (verified live: clicking the Nth row
+     * checkbox in a results table timed out because the table's total row
+     * count wasn't staying constant on the shared, concurrently-used
+     * public demo, even though the specific row being clicked was fine).
+     */
+    public WebElement waitForNthVisible(By locator, int index) {
+        return wait.until(driver -> {
+            try {
+                List<WebElement> elements = driver.findElements(locator);
+                if (index >= elements.size()) {
+                    return null;
+                }
+                WebElement element = elements.get(index);
+                return element.isDisplayed() ? element : null;
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                return null;
+            }
+        });
     }
 
     public List<WebElement> waitForAllPresence(By locator) {
@@ -90,6 +117,40 @@ public class WaitUtils {
     public boolean waitForNonEmptyValue(By locator) {
         WebElement element = waitForVisibility(locator);
         return wait.until(ExpectedConditions.attributeToBeNotEmpty(element, "value"));
+    }
+
+    /**
+     * Waits until the Nth match of a repeated locator's isSelected() equals
+     * the expected state - for actions where clicking one control (e.g. a
+     * bulk "select all" header checkbox) triggers an async state change on
+     * OTHER elements (each row's own checkbox) rather than the clicked
+     * element itself. Verified live: reading a row's checked state
+     * immediately after clicking "select all" can race OrangeHRM's Vue app
+     * propagating that state down to the row - the header click completes
+     * and returns before every row checkbox has actually re-rendered as
+     * checked.
+     */
+    public boolean waitForNthSelected(By locator, int index, boolean expectedSelected) {
+        return waitForNthSelected(locator, index, expectedSelected,
+                Duration.ofSeconds(ConfigReader.getExplicitTimeoutSeconds()));
+    }
+
+    /**
+     * Same as {@link #waitForNthSelected(By, int, boolean)} but with a
+     * caller-supplied timeout, for the rare case where the default explicit
+     * timeout genuinely isn't enough margin - verified live: propagating a
+     * bulk "select all" down to every row checkbox occasionally took longer
+     * than the default 30s under real load on the shared demo, not just a
+     * brief client-side race.
+     */
+    public boolean waitForNthSelected(By locator, int index, boolean expectedSelected, Duration timeout) {
+        return new WebDriverWait(driver, timeout).until(driver -> {
+            try {
+                return driver.findElements(locator).get(index).isSelected() == expectedSelected;
+            } catch (org.openqa.selenium.StaleElementReferenceException | IndexOutOfBoundsException e) {
+                return false;
+            }
+        });
     }
 
     /**
